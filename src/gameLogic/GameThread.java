@@ -2,7 +2,7 @@ package gameLogic;
 
 import objects.Player;
 
-public class GameController extends Thread{
+public class GameThread extends Thread{
 	
 	private Player player;
 	

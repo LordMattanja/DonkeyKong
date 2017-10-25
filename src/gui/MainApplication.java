@@ -2,6 +2,8 @@ package gui;
 
 import java.io.IOException;
 
+import gameLogic.GameThread;
+import gameLogic.GameState;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -15,6 +17,39 @@ public class MainApplication extends Application{
 	private FXMLLoader loader;
 	private Pane root;
 	private LevelController contrLevel;
+	private GameState gamestate;
+	private GameThread gameThread;
+	private static MainApplication main;
+	
+	public Scene getLevelScene() {
+		return levelScene;
+	}
+	public void setLevelScene(Scene levelScene) {
+		this.levelScene = levelScene;
+	}
+	public LevelController getContrLevel() {
+		return contrLevel;
+	}
+	public void setContrLevel(LevelController contrLevel) {
+		this.contrLevel = contrLevel;
+	}
+	public GameState getGamestate() {
+		return gamestate;
+	}
+	public void setGamestate(GameState gamestate) {
+		this.gamestate = gamestate;
+	}
+	public GameThread getGameThread() {
+		return gameThread;
+	}
+	public void setGameThread(GameThread gameThread) {
+		this.gameThread = gameThread;
+	}
+
+	public static MainApplication getMain() {
+		return main;
+	}
+	
 	
 	private void initialize() {
 		loader = new FXMLLoader(getClass().getResource("Level.fxml"));
@@ -24,8 +59,8 @@ public class MainApplication extends Application{
 			e.printStackTrace();
 		}
 		window.setHeight(800);
-		window.setWidth(500);
-		levelScene = new Scene(root);
+		window.setWidth(800);
+		levelScene = new Scene(root, 800, 800);
 		contrLevel = loader.getController();
 		window.setScene(levelScene);
 	}
@@ -33,6 +68,11 @@ public class MainApplication extends Application{
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
+		main = this;
+		
+		gameThread = new GameThread();
+		gamestate = new GameState();
+		
 		initialize();
 		
 		window.show();

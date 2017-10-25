@@ -1,8 +1,8 @@
 package objects;
 
-public class Ladder extends GameObject {
+public class Ladder extends StaticGameObject {
 
-	public Ladder(int hPos, int vPos, boolean collision) {
+	public Ladder(Double hPos, Double vPos, boolean collision) {
 		super(hPos, vPos, collision);
 	}
 

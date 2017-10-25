@@ -4,24 +4,24 @@ import javafx.scene.shape.Polygon;
 
 public class GameObject {
 	
-	private int hPos, vPos;
+	private Double hPos, vPos;
 	private boolean collision;
 	private Polygon polygon;
 	
 
-	public int gethPos() {
+	public Double gethPos() {
 		return hPos;
 	}
 
-	public void sethPos(int hPos) {
+	public void sethPos(Double hPos) {
 		this.hPos = hPos;
 	}
 
-	public int getvPos() {
+	public Double getvPos() {
 		return vPos;
 	}
 
-	public void setvPos(int vPos) {
+	public void setvPos(Double vPos) {
 		this.vPos = vPos;
 	}
 
@@ -43,7 +43,7 @@ public class GameObject {
 
 
 
-	public GameObject(int hPos, int vPos, boolean collision) {
+	public GameObject(Double hPos, Double vPos, boolean collision) {
 		this.hPos = hPos;
 		this.vPos = vPos;
 		this.collision = collision;

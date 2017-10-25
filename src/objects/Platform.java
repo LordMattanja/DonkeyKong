@@ -1,8 +1,14 @@
 package objects;
 
-public class Platform extends GameObject{
+import javafx.scene.shape.Polygon;
 
-	public Platform(int hPos, int vPos, boolean collision) {
+public class Platform extends StaticGameObject{
+
+	private int hPos, vPos;
+	private boolean collision;
+	private Polygon polygon;
+	
+	public Platform(Double hPos, Double vPos, boolean collision) {
 		super(hPos, vPos, collision);
 	}
 

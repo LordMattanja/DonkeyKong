@@ -5,22 +5,14 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="GUI.LevelController">
+<AnchorPane prefHeight="834.0" prefWidth="682.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.LevelController">
    <children>
-      <Pane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox layoutX="2.0" layoutY="-1.0" prefHeight="834.0" prefWidth="682.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="-1.0">
          <children>
-            <Polygon fx:id="playerPolygon" fill="DODGERBLUE" layoutX="100.0" layoutY="139.0" stroke="BLACK" strokeType="INSIDE">
-              <points>
-                <Double fx:value="-50.0" />
-                <Double fx:value="40.0" />
-                <Double fx:value="50.0" />
-                <Double fx:value="40.0" />
-                <Double fx:value="0.0" />
-                <Double fx:value="-60.0" />
-              </points>
-            </Polygon>
+            <Pane prefHeight="100.0" prefWidth="682.0" />
+            <Pane fx:id="gamePane" prefHeight="699.0" prefWidth="682.0" VBox.vgrow="ALWAYS" />
          </children>
-      </Pane>
+      </VBox>
    </children>
 </AnchorPane>
+

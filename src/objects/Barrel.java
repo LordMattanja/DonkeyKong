@@ -1,8 +1,14 @@
 package objects;
 
-public class Barrel extends MovingGameObject {
+import javafx.scene.shape.Polygon;
 
-	public Barrel(int hPos, int vPos, boolean collision) {
+public class Barrel extends MovingGameObject {
+	
+	private int hPos, vPos;
+	private boolean collision;
+	private Polygon polygon;
+
+	public Barrel(Double hPos, Double vPos, boolean collision) {
 		super(hPos, vPos, collision);
 	}
 

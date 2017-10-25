@@ -1,8 +1,14 @@
 package objects;
 
-public class Enemy extends GameObject{
+import javafx.scene.shape.Polygon;
 
-	public Enemy(int hPos, int vPos, boolean collision) {
+public class Enemy extends StaticGameObject{
+	
+	private int hPos, vPos;
+	private boolean collision;
+	private Polygon polygon;
+
+	public Enemy(Double hPos, Double vPos, boolean collision) {
 		super(hPos, vPos, collision);
 	}
 
