@@ -23,8 +23,9 @@ public class Player extends MovingGameObject {
 	}
 
 	
-	public void move(int hSpeed) {
-		this.hPos += hSpeed;
+	public void move() {
+		this.hPos += this.hSpeed;
+		polygon.setTranslateX(hSpeed + hPos);
 	}
 	
 	

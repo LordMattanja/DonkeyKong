@@ -20,7 +20,15 @@ public class MainApplication extends Application{
 	private GameState gamestate;
 	private GameThread gameThread;
 	private static MainApplication main;
+	private boolean gameActive = false;
 	
+	public Stage getWindow() {
+		return window;
+	}
+	
+	public boolean isGameActive() {
+		return gameActive;
+	}
 	public Scene getLevelScene() {
 		return levelScene;
 	}
@@ -76,6 +84,8 @@ public class MainApplication extends Application{
 		initialize();
 		
 		window.show();
+		gameActive = true;
+		contrLevel.initGame();
 		
 	}
 
