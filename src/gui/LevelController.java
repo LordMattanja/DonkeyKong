@@ -3,6 +3,7 @@ package gui;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import gameLogic.GameState;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -17,7 +18,9 @@ import objects.Player;
 public class LevelController implements Initializable{
 	
 	private MainApplication main;
+	private GameState gameState;
 	private Player player;
+	private Polygon playerPolygon;
 	@FXML
 	private Pane gamePane;
 	private Stage window;
@@ -29,10 +32,14 @@ public class LevelController implements Initializable{
 	public void initialize(URL location, ResourceBundle resources) {
 		
 		window = main.getWindow();
+		gameState = main.getGamestate();
 		
-		gamePane.getChildren().add(player.getPolygon());
+		playerPolygon = player.getPolygon();
 		
-		
+		gamePane.getChildren().add(playerPolygon);
+		for(int i = 0; i < gameState.getGameObjects().size(); i++){
+			gamePane.getChildren().add(gameState.getGameObjects().get(i).getPolygon());
+		}		
 		
 	}
 	
@@ -65,14 +72,19 @@ public class LevelController implements Initializable{
 
 			@Override
 			public void handle(KeyEvent event) {
-				if(event.getCode() == KeyCode.LEFT) {
-					player.sethSpeed(.0);
-				} else if(event.getCode() == KeyCode.RIGHT) {
+				if(event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.RIGHT) {
 					player.sethSpeed(.0);
 				}
 			}
 			
 		});
+	}
+	
+	public synchronized void repaint(){
+		gamePane.getChildren().remove(playerPolygon);
+		System.out.println("repainting");
+		
+		gamePane.getChildren().add(playerPolygon);		
 	}
 	
 

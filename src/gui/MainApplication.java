@@ -66,26 +66,28 @@ public class MainApplication extends Application{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		window.setHeight(800);
-		window.setWidth(800);
-		levelScene = new Scene(root, 800, 800);
+		window.setHeight(750);
+		window.setWidth(750);
+		levelScene = new Scene(root, 750, 750);
 		contrLevel = loader.getController();
 		window.setScene(levelScene);
 	}
 
 	@Override
-	public void start(Stage primaryStage) throws Exception {
+	public synchronized void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
 		main = this;
-		
-		gameThread = new GameThread();
+
 		gamestate = new GameState();
+		gameThread = new GameThread();
 		
 		initialize();
 		
 		window.show();
 		gameActive = true;
 		contrLevel.initGame();
+		gameThread.initGameThread();
+		gameThread.start();
 		
 	}
 
