@@ -1,6 +1,7 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import gameLogic.GameState;
@@ -13,7 +14,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
+import objects.MovingGameObject;
 import objects.Player;
+import objects.StaticGameObject;
 
 public class LevelController implements Initializable{
 	
@@ -37,15 +40,23 @@ public class LevelController implements Initializable{
 		playerPolygon = player.getPolygon();
 		
 		gamePane.getChildren().add(playerPolygon);
-		for(int i = 0; i < gameState.getGameObjects().size(); i++){
-			gamePane.getChildren().add(gameState.getGameObjects().get(i).getPolygon());
+		
+		ArrayList<MovingGameObject> movingObjects = gameState.getMovingGameObjects();
+		ArrayList<StaticGameObject> staticObjects = gameState.getStaticGameObjects();
+		
+		for(int i = 0; i < movingObjects.size(); i++){
+			gamePane.getChildren().add(movingObjects.get(i).getPolygon());
 		}		
+		for (int i = 0; i < staticObjects.size(); i++){
+			gamePane.getChildren().add(staticObjects.get(i).getPolygon());
+		}
 		
 	}
 	
 	public LevelController () {
 		main = MainApplication.getMain();
 		player = main.getGamestate().getPlayer();
+		
 		
 	}
 	
