@@ -43,19 +43,21 @@ public class GameState {
 	public void setMovingGameObjects(ArrayList<MovingGameObject> gameObjects) {
 		this.movingGameObjects = gameObjects;
 	}
-
+	
 	
 	public GameState() {
 		Random rand = new Random();
 		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY);
 		movingGameObjects = new ArrayList<>();
 		staticGameObjects = new ArrayList<>();
-		for(int i = 0; i < 7; i++){
+		for(int i = 0; i < Settings.numberOfPlatforms; i++){
 			boolean tiltedLeft = (i%2 == 0)? true : false;
-			staticGameObjects.add(new Platform(50.0+25*(i%2), 80*i+50.0, true, tiltedLeft));
-			if(i < 6){
-				Double hpos = rand.nextDouble()*300+30;
-				staticGameObjects.add(new Ladder(hpos, 80*i+60.0, 80.0));
+			staticGameObjects.add(new Platform(50.0+25*(i%2), 600/Settings.numberOfPlatforms*i+50.0, true, tiltedLeft));
+			if(i < Settings.numberOfPlatforms-1){
+				for (int j = 0; j < rand.nextInt(2)+2; j++){
+					Double hpos = rand.nextDouble()*(Settings.platformLength-50)+75;
+					staticGameObjects.add(new Ladder(hpos, 600/Settings.numberOfPlatforms*i+60.0, 600.0/Settings.numberOfPlatforms));					
+				}
 			}
 		}
 	}

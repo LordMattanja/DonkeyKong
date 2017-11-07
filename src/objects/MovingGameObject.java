@@ -1,27 +1,14 @@
 package objects;
 
-public class MovingGameObject extends GameObject {
+public abstract class MovingGameObject extends GameObject {
 	
-	private Double hSpeed, vSpeed;
 
-	public Double gethSpeed() {
-		return hSpeed;
-	}
+	public abstract Double gethPos();
 
-	public void sethSpeed(Double hSpeed) {
-		this.hSpeed = hSpeed;
-	}
+	public abstract void sethPos(Double hPos);
 
-	public Double getvSpeed() {
-		return vSpeed;
-	}
-
-	public void setvSpeed(Double vSpeed) {
-		this.vSpeed = vSpeed;
-	}
-
-	public MovingGameObject(Double hPos, Double vPos, boolean collision) {
-		super(hPos, vPos, collision);
-	}
+	public abstract  Double getvPos();
+	
+	public abstract void setvPos(Double vPos);
 
 }

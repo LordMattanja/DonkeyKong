@@ -25,14 +25,14 @@ public class GameThread extends Thread{
 		System.out.println("running");
 		
 		while (main.isGameActive()) {
-			if(player.gethSpeed() != 0) {
+			if(player.isPressedKeyLeft() || player.isPressedKeyRight()) {
 				player.move();
 			}
 			contrLvl.repaint();
 			
 			
 			try {
-				sleep(1000);
+				sleep(33);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

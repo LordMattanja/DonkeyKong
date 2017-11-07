@@ -1,6 +1,8 @@
 package objects;
 
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import utils.Settings;
 
 public class Platform extends StaticGameObject{
 
@@ -23,7 +25,8 @@ public class Platform extends StaticGameObject{
 			tilt*= -1;
 		}
 		polygon = new Polygon();
-		polygon.getPoints().setAll(new Double[]{hPos, vPos+tilt, hPos+300, vPos-tilt, hPos+300, vPos+15-tilt, hPos, vPos+15+tilt});
+		polygon.setFill(Color.BURLYWOOD);
+		polygon.getPoints().setAll(new Double[]{hPos, vPos+tilt, hPos+Settings.platformLength, vPos-tilt, hPos+Settings.platformLength, vPos+15-tilt, hPos, vPos+15+tilt});
 	}
 
 }

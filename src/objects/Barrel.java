@@ -9,7 +9,41 @@ public class Barrel extends MovingGameObject {
 	private Polygon polygon;
 
 	public Barrel(Double hPos, Double vPos, boolean collision) {
-		super(hPos, vPos, collision);
+	}
+
+
+	@Override
+	public Polygon getPolygon() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public Double gethPos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void sethPos(Double hPos) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	@Override
+	public Double getvPos() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public void setvPos(Double vPos) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

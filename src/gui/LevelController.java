@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import gameLogic.GameState;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,7 +29,17 @@ public class LevelController implements Initializable{
 	private Pane gamePane;
 	private Stage window;
 	private Scene scene;
+
+	private boolean isPressedKeyRight, isPressedKeyLeft;
 	
+
+	public boolean isPressedKeyRight() {
+		return isPressedKeyRight;
+	}
+
+	public boolean isPressedKeyLeft() {
+		return isPressedKeyLeft;
+	}
 	
 
 	@Override
@@ -64,38 +75,36 @@ public class LevelController implements Initializable{
 	public void initGame() {
 		scene = main.getLevelScene();
 		
-		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-
-			@Override
-			public void handle(KeyEvent event) {
+		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 				if(event.getCode() == KeyCode.LEFT) {
-					player.sethSpeed(-.5);
+					player.setPressedKeyLeft(true);
 					System.out.println("left");
 				} else if(event.getCode() == KeyCode.RIGHT) {
-					player.sethSpeed(.5);
+					player.setPressedKeyRight(true);
 					System.out.println("right");
 				}
-			}
 			
 		});
 		
-		scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-
-			@Override
-			public void handle(KeyEvent event) {
-				if(event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.RIGHT) {
-					player.sethSpeed(.0);
+		scene.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
+				if(event.getCode() == KeyCode.LEFT) {
+					player.setPressedKeyLeft(false);
 				}
-			}
-			
+				if (event.getCode() == KeyCode.RIGHT) {
+					player.setPressedKeyRight(false);
+				}			
 		});
 	}
 	
 	public synchronized void repaint(){
-		gamePane.getChildren().remove(playerPolygon);
-		System.out.println("repainting");
-		
-		gamePane.getChildren().add(playerPolygon);		
+		Platform.runLater(new Runnable(){
+			@Override
+			public void run() {
+				gamePane.getChildren().remove(playerPolygon);
+				gamePane.getChildren().add(playerPolygon);				
+			}
+			
+		});		
 	}
 	
 

@@ -12,4 +12,11 @@ public class Enemy extends StaticGameObject{
 		super(hPos, vPos, collision);
 	}
 
+	@Override
+	public Polygon getPolygon() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 }
