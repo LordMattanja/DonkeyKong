@@ -25,7 +25,7 @@ public class GameThread extends Thread{
 		System.out.println("running");
 		
 		while (main.isGameActive()) {
-			if(player.isPressedKeyLeft() || player.isPressedKeyRight()) {
+			if(player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0.0 && player.getvPos() < 800)) {
 				player.move();
 			}
 			contrLvl.repaint();

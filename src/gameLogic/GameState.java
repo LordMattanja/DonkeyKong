@@ -51,8 +51,8 @@ public class GameState {
 		movingGameObjects = new ArrayList<>();
 		staticGameObjects = new ArrayList<>();
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
-			boolean tiltedLeft = (i%2 == 0)? true : false;
-			staticGameObjects.add(new Platform(50.0+25*(i%2), 600/Settings.numberOfPlatforms*i+50.0, true, tiltedLeft));
+			int tilt = (i%2 == 0)? -10 : 10;
+			staticGameObjects.add(new Platform(50.0+25*(i%2), 600/Settings.numberOfPlatforms*i+50.0, true, tilt));
 			if(i < Settings.numberOfPlatforms-1){
 				for (int j = 0; j < rand.nextInt(2)+2; j++){
 					Double hpos = rand.nextDouble()*(Settings.platformLength-50)+75;
@@ -60,6 +60,7 @@ public class GameState {
 				}
 			}
 		}
+		staticGameObjects.add(new Platform(-5.0, Settings.playerStartingPosY+30, true, 0));
 	}
 
 	

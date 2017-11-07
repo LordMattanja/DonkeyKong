@@ -83,8 +83,14 @@ public class LevelController implements Initializable{
 					player.setPressedKeyRight(true);
 					System.out.println("right");
 				}
+				if(event.getCode() == KeyCode.SPACE) {
+					//TODO check if player on floor
+					player.setVSpeed(-10.0);
+					System.out.println("jump");
+				}
 			
 		});
+		
 		
 		scene.addEventFilter(KeyEvent.KEY_RELEASED, event -> {
 				if(event.getCode() == KeyCode.LEFT) {

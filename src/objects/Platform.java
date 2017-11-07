@@ -6,7 +6,7 @@ import utils.Settings;
 
 public class Platform extends StaticGameObject{
 
-	private int hPos, vPos, tilt = 10;
+	private int hPos, vPos;
 	private boolean collision;
 	private Polygon polygon;
 	private boolean tiltedLeft;
@@ -18,12 +18,8 @@ public class Platform extends StaticGameObject{
 
 
 
-	public Platform(Double hPos, Double vPos, boolean collision, boolean tiltedLeft) {
+	public Platform(Double hPos, Double vPos, boolean collision, int tilt) {
 		super(hPos, vPos, collision);
-		this.tiltedLeft = tiltedLeft;
-		if(this.tiltedLeft){
-			tilt*= -1;
-		}
 		polygon = new Polygon();
 		polygon.setFill(Color.BURLYWOOD);
 		polygon.getPoints().setAll(new Double[]{hPos, vPos+tilt, hPos+Settings.platformLength, vPos-tilt, hPos+Settings.platformLength, vPos+15-tilt, hPos, vPos+15+tilt});

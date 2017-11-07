@@ -8,5 +8,7 @@ public class Settings {
 	public static final int platformLength = 500;
 	public static int numberOfPlatforms = 6;
 	
+	public static final Double gravity = -2.0;
+	
 	
 }
