@@ -84,11 +84,11 @@ public class LevelController implements Initializable{
 					System.out.println("right");
 				}
 				if(event.getCode() == KeyCode.SPACE) {
-					//TODO check if player on floor
-					player.setVSpeed(-10.0);
-					System.out.println("jump");
-				}
-			
+					if(player.isGrounded()){
+					  player.setVSpeed(-11.0);
+					  System.out.println("jump");
+					}
+				}			
 		});
 		
 		

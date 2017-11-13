@@ -18,6 +18,7 @@ public class GameState {
 	private Enemy enemy;
 	private ArrayList<MovingGameObject> movingGameObjects;
 	private ArrayList<StaticGameObject> staticGameObjects;
+	private ArrayList<Platform> platforms;
 	
 	public Player getPlayer() {
 		return player;
@@ -30,6 +31,9 @@ public class GameState {
 	}
 	public void setEnemy(Enemy enemy) {
 		this.enemy = enemy;
+	}
+	public ArrayList<Platform> getPlatforms() {
+		return platforms;
 	}
 	public ArrayList<StaticGameObject> getStaticGameObjects() {
 		return staticGameObjects;
@@ -47,12 +51,14 @@ public class GameState {
 	
 	public GameState() {
 		Random rand = new Random();
-		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY);
+		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY, this);
 		movingGameObjects = new ArrayList<>();
 		staticGameObjects = new ArrayList<>();
+		platforms = new ArrayList<Platform>();
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
 			int tilt = (i%2 == 0)? -10 : 10;
-			staticGameObjects.add(new Platform(50.0+25*(i%2), 600/Settings.numberOfPlatforms*i+50.0, true, tilt));
+			platforms.add(new Platform(50.0+25*(i%2), 600/Settings.numberOfPlatforms*i+50.0, true, tilt));
+			staticGameObjects.add(platforms.get(i));
 			if(i < Settings.numberOfPlatforms-1){
 				for (int j = 0; j < rand.nextInt(2)+2; j++){
 					Double hpos = rand.nextDouble()*(Settings.platformLength-50)+75;
@@ -60,7 +66,17 @@ public class GameState {
 				}
 			}
 		}
-		staticGameObjects.add(new Platform(-5.0, Settings.playerStartingPosY+30, true, 0));
+		platforms.add(new Platform(-5.0, Settings.playerStartingPosY+30.1, true, 0));
+		staticGameObjects.add(platforms.get(Settings.numberOfPlatforms));
+	}
+	
+	public boolean checkPlayerCollision(){
+		for(int i = 0; i < platforms.size(); i++){
+			if(player.getPolygon().getBoundsInParent().intersects(platforms.get(i).getPolygon().getBoundsInParent())){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	
