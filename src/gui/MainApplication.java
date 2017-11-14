@@ -9,6 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import utils.Settings;
 
 public class MainApplication extends Application{
 	
@@ -66,9 +67,9 @@ public class MainApplication extends Application{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		window.setHeight(750);
+		window.setHeight(Settings.playerStartingPosY+125);
 		window.setWidth(750);
-		levelScene = new Scene(root, 750, 750);
+		levelScene = new Scene(root, 750, Settings.playerStartingPosY+125);
 		contrLevel = loader.getController();
 		window.setScene(levelScene);
 	}

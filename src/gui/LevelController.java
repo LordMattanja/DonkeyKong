@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import com.sun.media.jfxmedia.events.PlayerStateEvent;
+
 import gameLogic.GameState;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -86,9 +88,15 @@ public class LevelController implements Initializable{
 				if(event.getCode() == KeyCode.SPACE) {
 					if(player.isGrounded()){
 					  player.setVSpeed(-11.0);
+					  player.setClimbing(false);
 					  System.out.println("jump");
 					}
-				}			
+				}	
+				if(event.getCode() == KeyCode.UP){
+						player.setPressedKeyUp(true);
+				} else if(event.getCode() == KeyCode.DOWN){
+						player.setPressedKeyDown(true);
+				}
 		});
 		
 		
@@ -98,7 +106,12 @@ public class LevelController implements Initializable{
 				}
 				if (event.getCode() == KeyCode.RIGHT) {
 					player.setPressedKeyRight(false);
-				}			
+				}	
+				if(event.getCode() == KeyCode.UP){
+					player.setPressedKeyUp(false);
+			    } else if(event.getCode() == KeyCode.DOWN){
+					player.setPressedKeyDown(false);
+			    }
 		});
 	}
 	

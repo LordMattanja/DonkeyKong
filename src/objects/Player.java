@@ -10,7 +10,7 @@ public class Player extends MovingGameObject {
 
 	private Double hPos, vPos, vSpeed = 2.0;
 	private int health;
-	private boolean collision, isPressedKeyRight = false, isPressedKeyLeft = false, grounded = false;
+	private boolean collision, isPressedKeyRight = false, isPressedKeyLeft = false, isPressedKeyUp = false, isPressedKeyDown = false, grounded = false, isClimbing = false, canClimb = false;
 	private Polygon polygon;
 	private GameState gamestate;
 	
@@ -30,6 +30,22 @@ public class Player extends MovingGameObject {
 		this.isPressedKeyLeft = isPressedKeyLeft;
 	}
 
+	public boolean isPressedKeyUp() {
+		return isPressedKeyUp;
+	}
+
+	public void setPressedKeyUp(boolean isPressedKeyUp) {
+		this.isPressedKeyUp = isPressedKeyUp;
+	}
+
+	public boolean isPressedKeyDown() {
+		return isPressedKeyDown;
+	}
+
+	public void setPressedKeyDown(boolean isPressedKeyDown) {
+		this.isPressedKeyDown = isPressedKeyDown;
+	}
+
 	public Polygon getPolygon() {
 		return this.polygon;
 	}
@@ -40,6 +56,22 @@ public class Player extends MovingGameObject {
 
 	public void setGrounded(boolean grounded) {
 		this.grounded = grounded;
+	}
+
+	public boolean isClimbing() {
+		return isClimbing;
+	}
+
+	public void setClimbing(boolean isClimbing) {
+		this.isClimbing = isClimbing;
+	}
+
+	public boolean canClimb() {
+		return canClimb;
+	}
+	
+	public void setCanClimb(boolean canClimb){
+		this.canClimb = canClimb; 
 	}
 
 	public Player(Double hPosition, Double vPosition, GameState gs) {
@@ -54,11 +86,12 @@ public class Player extends MovingGameObject {
 	private void resolveCollision(boolean vertical){
 		if(vertical) {
 			if(grounded) {
-				vPos += Settings.gravity;
+				vPos -= vSpeed+.1;
 			} else {
 			if(vSpeed > 0 && vPos < 630){
 				vPos -= .1;
 		    	grounded = true;
+		    	vSpeed = 0.0;
 			} else if(vSpeed < 0 && vPos > 0){
 				vPos += .1;
 		    	vSpeed -= Settings.gravity;
@@ -72,10 +105,37 @@ public class Player extends MovingGameObject {
 		    	hPos -= .1;
 		    }
 			polygon.setTranslateX(hPos-Settings.playerStartingPosX);
+			if(gamestate.canClimb()){
+				return;
+			}
 		}
 		if(gamestate.checkPlayerCollision()){
 			resolveCollision(vertical);
 		} 
+	}
+	
+	public void climb(){
+		System.out.println("climbing");
+		if(canClimb && isPressedKeyUp){
+			vPos -= 3.0;
+			vSpeed = 0.0;
+			isClimbing = true;
+		} else if( canClimb && isPressedKeyDown){
+			vPos += 3.0;
+			vSpeed = 0.0;
+			isClimbing = true;
+		}
+		polygon.setTranslateY(vPos-Settings.playerStartingPosY);
+	}
+	
+	public void applyGravity(){
+		if(vSpeed == 0 && !canClimb){
+			polygon.setTranslateY(-Settings.gravity + vPos - Settings.playerStartingPosY);
+			if(!gamestate.checkPlayerCollision()){
+				vSpeed += -Settings.gravity;
+			}
+			polygon.setTranslateY(Settings.gravity + vPos - Settings.playerStartingPosY);
+		}
 	}
 	
 	public void move() {
@@ -100,7 +160,7 @@ public class Player extends MovingGameObject {
 		if(gamestate.checkPlayerCollision()){
 			resolveCollision(false);
 		}
-		System.out.println("x: " + hPos + ", y: " + vPos); 
+//		System.out.println("x: " + hPos + ", y: " + vPos); 
 	}
 	
 
@@ -112,7 +172,6 @@ public class Player extends MovingGameObject {
 	@Override
 	public void sethPos(Double hPos) {
 		this.hPos = hPos;
-		
 	}
 
 	@Override

@@ -10,6 +10,7 @@ import objects.MovingGameObject;
 import objects.Platform;
 import objects.Player;
 import objects.StaticGameObject;
+import objects.TiltedPlatform;
 import utils.Settings;
 
 public class GameState {
@@ -57,23 +58,33 @@ public class GameState {
 		platforms = new ArrayList<Platform>();
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
 			int tilt = (i%2 == 0)? -10 : 10;
-			platforms.add(new Platform(50.0+25*(i%2), 600/Settings.numberOfPlatforms*i+50.0, true, tilt));
+			platforms.add(new TiltedPlatform(50.0+25*(i%2), 600/Settings.numberOfPlatforms*i+50.0, true, tilt));
 			staticGameObjects.add(platforms.get(i));
-			if(i < Settings.numberOfPlatforms-1){
-				for (int j = 0; j < rand.nextInt(2)+2; j++){
-					Double hpos = rand.nextDouble()*(Settings.platformLength-50)+75;
-					staticGameObjects.add(new Ladder(hpos, 600/Settings.numberOfPlatforms*i+60.0, 600.0/Settings.numberOfPlatforms));					
-				}
+				for (int j = 0; j < rand.nextInt(2)+1; j++){
+					Double hpos = rand.nextDouble()*(Settings.tiltedPlatformLength-50)+75;
+					staticGameObjects.add(new Ladder(hpos, 600/Settings.numberOfPlatforms*i+60.0, 600.0/Settings.numberOfPlatforms));	
 			}
 		}
-		platforms.add(new Platform(-5.0, Settings.playerStartingPosY+30.1, true, 0));
+		platforms.add(new Platform(-5.0, Settings.playerStartingPosY+30.1, true));
 		staticGameObjects.add(platforms.get(Settings.numberOfPlatforms));
 	}
 	
 	public boolean checkPlayerCollision(){
+		if(player.isClimbing()) return false;
 		for(int i = 0; i < platforms.size(); i++){
 			if(player.getPolygon().getBoundsInParent().intersects(platforms.get(i).getPolygon().getBoundsInParent())){
 				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean canClimb(){
+		for (StaticGameObject staticObject : staticGameObjects) {
+			if(staticObject.getClass().equals(Ladder.class)){
+				if(player.getPolygon().getBoundsInParent().intersects(staticObject.getPolygon().getBoundsInParent())){
+					return true;
+				}
 			}
 		}
 		return false;

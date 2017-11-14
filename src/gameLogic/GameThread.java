@@ -25,9 +25,20 @@ public class GameThread extends Thread{
 		System.out.println("running");
 		
 		while (main.isGameActive()) {
-			if(player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0.0 && player.getvPos() < 800)) {
+			if(player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0-.0 && player.getvPos() < 800)) {
 				player.move();
 			}
+			if(gameState.canClimb()){
+				player.setCanClimb(true);
+				if(player.isPressedKeyUp() || player.isPressedKeyDown()){
+				  player.climb();
+				}
+			} else {
+				player.setCanClimb(false);
+				player.setClimbing(false);
+			}
+			player.applyGravity();
+							
 			contrLvl.repaint();
 			
 			
