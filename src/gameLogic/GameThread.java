@@ -23,8 +23,11 @@ public class GameThread extends Thread{
 	@Override
 	public synchronized void run() {
 		System.out.println("running");
-		
+		int count = 0;
 		while (main.isGameActive()) {
+			if(count % 10 == 0){
+				gameState.addBarrel();
+			}
 			if(player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0-.0 && player.getvPos() < 800)) {
 				player.move();
 			}
@@ -40,7 +43,7 @@ public class GameThread extends Thread{
 			player.applyGravity();
 							
 			contrLvl.repaint();
-			
+			count++;
 			
 			try {
 				sleep(33);
@@ -48,6 +51,8 @@ public class GameThread extends Thread{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
+			
 		}
 		
 		

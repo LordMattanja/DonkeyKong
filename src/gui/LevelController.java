@@ -31,6 +31,7 @@ public class LevelController implements Initializable{
 	private Pane gamePane;
 	private Stage window;
 	private Scene scene;
+	private ArrayList<MovingGameObject> movingObjects;
 
 	private boolean isPressedKeyRight, isPressedKeyLeft;
 	
@@ -54,7 +55,7 @@ public class LevelController implements Initializable{
 		
 		gamePane.getChildren().add(playerPolygon);
 		
-		ArrayList<MovingGameObject> movingObjects = gameState.getMovingGameObjects();
+		movingObjects = gameState.getMovingGameObjects();
 		ArrayList<StaticGameObject> staticObjects = gameState.getStaticGameObjects();
 		
 		for(int i = 0; i < movingObjects.size(); i++){
@@ -119,8 +120,13 @@ public class LevelController implements Initializable{
 		Platform.runLater(new Runnable(){
 			@Override
 			public void run() {
+				movingObjects = gameState.getMovingGameObjects();
 				gamePane.getChildren().remove(playerPolygon);
-				gamePane.getChildren().add(playerPolygon);				
+				gamePane.getChildren().add(playerPolygon);	
+				for(int i = 0; i < movingObjects.size(); i++){
+					gamePane.getChildren().remove(movingObjects.get(i).getPolygon());
+					gamePane.getChildren().add(movingObjects.get(i).getPolygon());					
+				}
 			}
 			
 		});		

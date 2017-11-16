@@ -101,15 +101,23 @@ public class Player extends MovingGameObject {
 		} else {
 			if(isPressedKeyLeft && !isPressedKeyRight && hPos >= 5.0){
 				hPos += .1;
+				if(gamestate.getCollidingPlatform().getTilt() < 0) {
+					vPos -= .05;
+					polygon.setTranslateY(vPos-Settings.playerStartingPosY);
+				}
 			} else if(!isPressedKeyLeft && isPressedKeyRight && hPos <= 700){
 		    	hPos -= .1;
+		    	if(gamestate.getCollidingPlatform().getTilt() > 0) {
+					vPos -= .05;
+					polygon.setTranslateY(vPos-Settings.playerStartingPosY);
+				}
 		    }
 			polygon.setTranslateX(hPos-Settings.playerStartingPosX);
 			if(gamestate.canClimb()){
 				return;
 			}
 		}
-		if(gamestate.checkPlayerCollision()){
+		if(gamestate.checkObjectCollision(this)){
 			resolveCollision(vertical);
 		} 
 	}
@@ -131,7 +139,7 @@ public class Player extends MovingGameObject {
 	public void applyGravity(){
 		if(vSpeed == 0 && !canClimb){
 			polygon.setTranslateY(-Settings.gravity + vPos - Settings.playerStartingPosY);
-			if(!gamestate.checkPlayerCollision()){
+			if(!gamestate.checkObjectCollision(this)){
 				vSpeed += -Settings.gravity;
 			}
 			polygon.setTranslateY(Settings.gravity + vPos - Settings.playerStartingPosY);
@@ -150,14 +158,14 @@ public class Player extends MovingGameObject {
 	    	}
 	    	vPos += vSpeed;
 	    	polygon.setTranslateY(vPos-Settings.playerStartingPosY);
-	    	if(gamestate.checkPlayerCollision()){
+	    	if(gamestate.checkObjectCollision(this)){
 				resolveCollision(true);
 			} else {
 	    	  vSpeed -= Settings.gravity;
 			}
 	    }
 		polygon.setTranslateX(hPos-Settings.playerStartingPosX);
-		if(gamestate.checkPlayerCollision()){
+		if(gamestate.checkObjectCollision(this)){
 			resolveCollision(false);
 		}
 //		System.out.println("x: " + hPos + ", y: " + vPos); 
@@ -191,6 +199,11 @@ public class Player extends MovingGameObject {
 
 	public Double getvSpeed() {
 		return vSpeed;
+	}
+
+	@Override
+	public void run() {
+		
 	}
 
 }

@@ -3,6 +3,8 @@ package gameLogic;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javafx.scene.shape.Shape;
+import objects.Barrel;
 import objects.Enemy;
 import objects.GameObject;
 import objects.Ladder;
@@ -10,7 +12,7 @@ import objects.MovingGameObject;
 import objects.Platform;
 import objects.Player;
 import objects.StaticGameObject;
-import objects.TiltedPlatform;
+import objects.Platform;
 import utils.Settings;
 
 public class GameState {
@@ -58,21 +60,22 @@ public class GameState {
 		platforms = new ArrayList<Platform>();
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
 			int tilt = (i%2 == 0)? -10 : 10;
-			platforms.add(new TiltedPlatform(50.0+25*(i%2), 600/Settings.numberOfPlatforms*i+50.0, true, tilt));
+			platforms.add(new Platform(50.0+25*(i%2), 600/Settings.numberOfPlatforms*i+50.0, Settings.tiltedPlatformLength, true, tilt));
 			staticGameObjects.add(platforms.get(i));
 				for (int j = 0; j < rand.nextInt(2)+1; j++){
 					Double hpos = rand.nextDouble()*(Settings.tiltedPlatformLength-50)+75;
 					staticGameObjects.add(new Ladder(hpos, 600/Settings.numberOfPlatforms*i+60.0, 600.0/Settings.numberOfPlatforms));	
 			}
 		}
-		platforms.add(new Platform(-5.0, Settings.playerStartingPosY+30.1, true));
+		platforms.add(new Platform(-5.0, Settings.playerStartingPosY+30.01, Settings.platformLength, true, 0));
 		staticGameObjects.add(platforms.get(Settings.numberOfPlatforms));
 	}
 	
-	public boolean checkPlayerCollision(){
-		if(player.isClimbing()) return false;
+	public boolean checkObjectCollision(GameObject obj){
+		if(obj == player && player.isClimbing()) return false;
 		for(int i = 0; i < platforms.size(); i++){
-			if(player.getPolygon().getBoundsInParent().intersects(platforms.get(i).getPolygon().getBoundsInParent())){
+			Shape intersecting = Shape.intersect(obj.getPolygon(), platforms.get(i).getPolygon());
+			if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
 				return true;
 			}
 		}
@@ -82,13 +85,29 @@ public class GameState {
 	public boolean canClimb(){
 		for (StaticGameObject staticObject : staticGameObjects) {
 			if(staticObject.getClass().equals(Ladder.class)){
-				if(player.getPolygon().getBoundsInParent().intersects(staticObject.getPolygon().getBoundsInParent())){
+				if(Shape.intersect(player.getPolygon(),staticObject.getPolygon()).getBoundsInParent().getWidth() > 10){
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-
+	
+	public Platform getCollidingPlatform(){
+		for(int i = 0; i < platforms.size(); i++){
+			Shape intersecting = Shape.intersect(player.getPolygon(), platforms.get(i).getPolygon());
+			if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
+				return platforms.get(i);
+			}
+		}
+		return null;
+	}
+	
+	protected void addBarrel(){
+		Barrel barrel = new Barrel(80.0, 50.0, false, this);
+		movingGameObjects.add(barrel);
+		barrel.run();
+	}
 	
 }
+	

@@ -1,6 +1,6 @@
 package objects;
 
-public abstract class MovingGameObject extends GameObject {
+public abstract class MovingGameObject extends GameObject implements Runnable{
 	
 
 	public abstract Double gethPos();
