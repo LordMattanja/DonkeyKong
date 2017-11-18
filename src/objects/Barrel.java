@@ -50,6 +50,7 @@ public class Barrel extends MovingGameObject implements Runnable{
 	}
 
 	private void fall() throws CollisionException{
+		System.out.println("fall");
 		vPos += 1;
 		polygon.setTranslateY(vPos);
 		if(gameState.checkObjectCollision(this)){
@@ -61,6 +62,7 @@ public class Barrel extends MovingGameObject implements Runnable{
 	}
 	
 	private void roll() {
+		System.out.println("roll");
 		int translate = gameState.getCollidingPlatform().getTilt()/10;
 		hPos += translate;
 		vPos += 0.02;
