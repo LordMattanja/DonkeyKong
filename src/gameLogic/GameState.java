@@ -69,6 +69,7 @@ public class GameState {
 		}
 		platforms.add(new Platform(-5.0, Settings.playerStartingPosY+30.01, Settings.platformLength, true, 0));
 		staticGameObjects.add(platforms.get(Settings.numberOfPlatforms));
+		addBarrel();
 	}
 	
 	public boolean checkObjectCollision(GameObject obj){
@@ -80,6 +81,16 @@ public class GameState {
 			}
 		}
 		return false;
+	}
+
+	public Platform getCollidingPlatform(GameObject obj){
+		for(int i = 0; i < platforms.size(); i++){
+			Shape intersecting = Shape.intersect(obj.getPolygon(), platforms.get(i).getPolygon());
+			if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
+				return platforms.get(i);
+			}
+		}
+		return null;
 	}
 	
 	public boolean canClimb(){
@@ -93,15 +104,6 @@ public class GameState {
 		return false;
 	}
 	
-	public Platform getCollidingPlatform(){
-		for(int i = 0; i < platforms.size(); i++){
-			Shape intersecting = Shape.intersect(player.getPolygon(), platforms.get(i).getPolygon());
-			if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
-				return platforms.get(i);
-			}
-		}
-		return null;
-	}
 	
 	protected void addBarrel(){
 		Barrel barrel = new Barrel(80.0, 50.0, false, this);

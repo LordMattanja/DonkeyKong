@@ -2,7 +2,9 @@ package objects;
 
 import Exceptions.CollisionException;
 import gameLogic.GameState;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import utils.Settings;
 
 public class Barrel extends MovingGameObject implements Runnable{
 	
@@ -16,7 +18,8 @@ public class Barrel extends MovingGameObject implements Runnable{
 		this.hPos = hPos;
 		this.vPos = vPos;
 		this.polygon = new Polygon();
-		polygon.getPoints().setAll(new Double[]{ hPos, vPos, hPos+15, vPos, hPos + 15, vPos+15, hPos, vPos+15 });
+		this.polygon.setFill(Color.AQUA);
+		this.polygon.getPoints().setAll(new Double[]{ hPos, vPos, hPos+15, vPos, hPos + 15, vPos+15, hPos, vPos+15 });
 	}
 
 
@@ -49,38 +52,39 @@ public class Barrel extends MovingGameObject implements Runnable{
 		this.vPos = vPos;
 	}
 
-	private void fall() throws CollisionException{
-		System.out.println("fall");
-		vPos += 1;
-		polygon.setTranslateY(vPos);
+	private synchronized void fall() throws CollisionException{
+		this.vPos += 2;
+		this.polygon.setTranslateY(vPos-Settings.barrelStartingPosY);
 		if(gameState.checkObjectCollision(this)){
-			System.out.println("collision");
-			vPos -= 1;
-			polygon.setTranslateY(vPos);
 			throw new CollisionException();
 		}
 	}
 	
-	private void roll() {
-		System.out.println("roll");
-		int translate = gameState.getCollidingPlatform().getTilt()/10;
-		hPos += translate;
-		vPos += 0.02;
-		polygon.setTranslateX(hPos);
-		polygon.setTranslateY(vPos);
+	private synchronized void roll() {
+		int translate = gameState.getCollidingPlatform(this).getTilt()/10;
+		this.hPos -= translate;
+		if(translate != 0){
+			this.vPos -= (2-translate/Settings.platformLength);
+		} else {
+			hPos += 1;
+		}
+		this.polygon.setTranslateX(hPos-Settings.barrelStartingPosX);
+		this.polygon.setTranslateY(vPos-Settings.barrelStartingPosY);
 	}
 
 	@Override
 	public synchronized void run() {
-		try {
-			fall();
-			//TODO check if valid
-			Thread.sleep(33);
-		}catch (CollisionException e) {
-			roll();
-			// TODO: handle exception
-		} catch (InterruptedException e) {
-			// TODO: handle exception
+		while (true) {
+			try {
+				Thread.sleep(33);
+				fall();
+				// TODO check if valid
+			} catch (CollisionException e) {
+				roll();
+				// TODO: handle exception
+			} catch (InterruptedException e) {
+				// TODO: handle exception
+			}
 		}
 	}
 

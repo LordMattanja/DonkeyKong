@@ -125,7 +125,7 @@ public class LevelController implements Initializable{
 				gamePane.getChildren().add(playerPolygon);	
 				for(int i = 0; i < movingObjects.size(); i++){
 					gamePane.getChildren().remove(movingObjects.get(i).getPolygon());
-					gamePane.getChildren().add(movingObjects.get(i).getPolygon());					
+					gamePane.getChildren().add(movingObjects.get(i).getPolygon());
 				}
 			}
 			
