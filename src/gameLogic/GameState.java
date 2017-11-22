@@ -3,6 +3,7 @@ package gameLogic;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 import objects.Barrel;
 import objects.Enemy;
@@ -22,6 +23,7 @@ public class GameState {
 	private ArrayList<MovingGameObject> movingGameObjects;
 	private ArrayList<StaticGameObject> staticGameObjects;
 	private ArrayList<Platform> platforms;
+	private ArrayList<Barrel> barrels;
 	
 	public Player getPlayer() {
 		return player;
@@ -37,6 +39,9 @@ public class GameState {
 	}
 	public ArrayList<Platform> getPlatforms() {
 		return platforms;
+	}
+	public ArrayList<Barrel> getBarrels() {
+		return barrels;
 	}
 	public ArrayList<StaticGameObject> getStaticGameObjects() {
 		return staticGameObjects;
@@ -58,6 +63,7 @@ public class GameState {
 		movingGameObjects = new ArrayList<>();
 		staticGameObjects = new ArrayList<>();
 		platforms = new ArrayList<Platform>();
+		barrels = new ArrayList<Barrel>();
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
 			int tilt = (i%2 == 0)? -10 : 10;
 			platforms.add(new Platform(50.0+25*(i%2), 600/Settings.numberOfPlatforms*i+50.0, Settings.tiltedPlatformLength, true, tilt));
@@ -82,10 +88,20 @@ public class GameState {
 		}
 		return false;
 	}
-
-	public Platform getCollidingPlatform(GameObject obj){
+	
+	public boolean checkPolygonCollision(Polygon poly){
 		for(int i = 0; i < platforms.size(); i++){
-			Shape intersecting = Shape.intersect(obj.getPolygon(), platforms.get(i).getPolygon());
+			Shape intersecting = Shape.intersect(poly, platforms.get(i).getPolygon());
+			if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public Platform getCollidingPlatform(Polygon poly){
+		for(int i = 0; i < platforms.size(); i++){
+			Shape intersecting = Shape.intersect(poly, platforms.get(i).getPolygon());
 			if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
 				return platforms.get(i);
 			}
@@ -106,7 +122,8 @@ public class GameState {
 	
 	
 	protected void addBarrel(){
-		Barrel barrel = new Barrel(80.0, 50.0, false, this);
+		Barrel barrel = new Barrel(50.0, 10.0, false, this);
+		barrels.add(barrel);
 		movingGameObjects.add(barrel);
 		new Thread(barrel).start();
 	}

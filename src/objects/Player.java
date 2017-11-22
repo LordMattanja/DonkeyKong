@@ -81,7 +81,7 @@ public class Player extends MovingGameObject {
 		this.vPos = vPosition;
 		this.polygon = new Polygon();
 		this.health = 3;
-		polygon.setFill(Color.BLANCHEDALMOND);
+		polygon.setFill(Color.CRIMSON);
 		polygon.getPoints().setAll(new Double[]{hPos, vPos, hPos, vPos+30, hPos+20, vPos+30, hPos+20, vPos});
 		System.out.println(hPos);
 	}
@@ -104,13 +104,13 @@ public class Player extends MovingGameObject {
 		} else {
 			if(isPressedKeyLeft && !isPressedKeyRight && hPos >= 5.0){
 				hPos += .1;
-				if(gamestate.getCollidingPlatform(this).getTilt() < 0) {
+				if(gamestate.getCollidingPlatform(this.polygon).getTilt() < 0) {
 					vPos -= .05;
 					polygon.setTranslateY(vPos-Settings.playerStartingPosY);
 				}
 			} else if(!isPressedKeyLeft && isPressedKeyRight && hPos <= 700){
 		    	hPos -= .1;
-		    	if(gamestate.getCollidingPlatform(this).getTilt() > 0) {
+		    	if(gamestate.getCollidingPlatform(this.polygon).getTilt() > 0) {
 					vPos -= .05;
 					polygon.setTranslateY(vPos-Settings.playerStartingPosY);
 				}

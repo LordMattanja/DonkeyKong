@@ -52,35 +52,36 @@ public class Barrel extends MovingGameObject implements Runnable{
 		this.vPos = vPos;
 	}
 
-	private synchronized void fall() throws CollisionException{
+	private synchronized void fall() throws CollisionException {
 		this.vPos += 2;
-		this.polygon.setTranslateY(vPos-Settings.barrelStartingPosY);
-		if(gameState.checkObjectCollision(this)){
-			throw new CollisionException();
+		this.polygon.setTranslateY(this.vPos-Settings.barrelStartingPosY);
+		if(gameState.checkPolygonCollision(this.polygon)){
+			int translate = gameState.getCollidingPlatform(this.polygon).getTilt()/10;
+			this.vPos -= 2;
+			throw new CollisionException(translate);		
 		}
 	}
 	
-	private synchronized void roll() {
-		int translate = gameState.getCollidingPlatform(this).getTilt()/10;
+	private synchronized void roll(int translate) {
 		this.hPos -= translate;
 		if(translate != 0){
-			this.vPos -= (2-translate/Settings.platformLength);
+			this.vPos += (20.0/Settings.tiltedPlatformLength);
+			this.polygon.setTranslateY(vPos-Settings.barrelStartingPosY);
 		} else {
 			hPos += 1;
 		}
 		this.polygon.setTranslateX(hPos-Settings.barrelStartingPosX);
-		this.polygon.setTranslateY(vPos-Settings.barrelStartingPosY);
 	}
 
 	@Override
 	public synchronized void run() {
 		while (true) {
 			try {
+				// TODO check if valid
 				Thread.sleep(33);
 				fall();
-				// TODO check if valid
 			} catch (CollisionException e) {
-				roll();
+				roll(e.getPlatformTilt());
 				// TODO: handle exception
 			} catch (InterruptedException e) {
 				// TODO: handle exception

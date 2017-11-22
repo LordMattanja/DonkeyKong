@@ -26,7 +26,7 @@ public class GameThread extends Thread{
 		int count = 0;
 		while (main.isGameActive()) {
 			if(count % 30 == 0){
-				gameState.addBarrel();
+//				gameState.addBarrel();
 			}
 			if(player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0-.0 && player.getvPos() < 800)) {
 				player.move();
@@ -41,7 +41,8 @@ public class GameThread extends Thread{
 				player.setClimbing(false);
 			}
 			player.applyGravity();
-							
+			
+			
 			contrLvl.repaint();
 			count++;
 			
