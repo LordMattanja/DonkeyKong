@@ -9,7 +9,8 @@ import utils.Settings;
 public class Barrel extends MovingGameObject implements Runnable{
 	
 	private Double hPos, vPos;
-	private boolean collision;
+	int translate;
+	private boolean collision, rolling = false;
 	private Polygon polygon;
 	private GameState gameState;
 
@@ -51,18 +52,29 @@ public class Barrel extends MovingGameObject implements Runnable{
 	public void setvPos(Double vPos) {
 		this.vPos = vPos;
 	}
+	
+	private void gripToPlatForm() {
+		while(gameState.checkPolygonCollision(this.polygon)) {
+			vPos -= .1;
+			polygon.setTranslateY(this.vPos-Settings.barrelStartingPosY);
+		}
+	}
 
 	private synchronized void fall() throws CollisionException {
 		this.vPos += 2;
 		this.polygon.setTranslateY(this.vPos-Settings.barrelStartingPosY);
 		if(gameState.checkPolygonCollision(this.polygon)){
 			int translate = gameState.getCollidingPlatform(this.polygon).getTilt()/10;
-			this.vPos -= 2;
+			gripToPlatForm();
 			throw new CollisionException(translate);		
 		}
 	}
-	
-	private synchronized void roll(int translate) {
+
+	private synchronized void roll() {
+		if(hPos > 50 + Settings.tiltedPlatformLength && translate < 0 || hPos < 75 && translate > 0) {
+			rolling = false;
+			return;
+		}
 		this.hPos -= translate;
 		if(translate != 0){
 			this.vPos += (20.0/Settings.tiltedPlatformLength);
@@ -76,12 +88,17 @@ public class Barrel extends MovingGameObject implements Runnable{
 	@Override
 	public synchronized void run() {
 		while (true) {
-			try {
-				// TODO check if valid
+			try { 
 				Thread.sleep(33);
-				fall();
+				if(!rolling) {
+					fall();					
+				} else {
+					roll();
+				}				
+				// TODO check if valid
 			} catch (CollisionException e) {
-				roll(e.getPlatformTilt());
+				translate = e.getPlatformTilt();
+				rolling = true;
 				// TODO: handle exception
 			} catch (InterruptedException e) {
 				// TODO: handle exception

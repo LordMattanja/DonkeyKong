@@ -122,7 +122,7 @@ public class GameState {
 	
 	
 	protected void addBarrel(){
-		Barrel barrel = new Barrel(50.0, 10.0, false, this);
+		Barrel barrel = new Barrel(Settings.barrelStartingPosX, Settings.barrelStartingPosY, false, this);
 		barrels.add(barrel);
 		movingGameObjects.add(barrel);
 		new Thread(barrel).start();
