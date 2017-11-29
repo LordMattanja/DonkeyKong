@@ -8,6 +8,7 @@ import com.sun.media.jfxmedia.events.PlayerStateEvent;
 
 import gameLogic.GameState;
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -32,10 +33,10 @@ public class LevelController implements Initializable{
 	private Stage window;
 	private Scene scene;
 	private ArrayList<MovingGameObject> movingObjects;
+	private IntegerProperty playerHealthProperty;
 
 	private boolean isPressedKeyRight, isPressedKeyLeft;
 	
-
 	public boolean isPressedKeyRight() {
 		return isPressedKeyRight;
 	}
@@ -43,7 +44,6 @@ public class LevelController implements Initializable{
 	public boolean isPressedKeyLeft() {
 		return isPressedKeyLeft;
 	}
-	
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -120,13 +120,23 @@ public class LevelController implements Initializable{
 		Platform.runLater(new Runnable(){
 			@Override
 			public void run() {
-				movingObjects = gameState.getMovingGameObjects();
-				gamePane.getChildren().remove(playerPolygon);
-				gamePane.getChildren().add(playerPolygon);	
-				for(int i = 0; i < movingObjects.size(); i++){
-					gamePane.getChildren().remove(movingObjects.get(i).getPolygon());
-					gamePane.getChildren().add(movingObjects.get(i).getPolygon());
+				while(main.isGameActive()){
+				  movingObjects = gameState.getMovingGameObjects();
+				  gamePane.getChildren().remove(playerPolygon);
+				  gamePane.getChildren().add(playerPolygon);	
+				  for(int i = 0; i < movingObjects.size(); i++){
+					  if(movingObjects.get(i).getPolygon() != null){
+						  gamePane.getChildren().remove(movingObjects.get(i).getPolygon());
+					      gamePane.getChildren().add(movingObjects.get(i).getPolygon());				
+					  }
+				  }
 				}
+			try {
+				Thread.sleep(33);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			}
 			
 		});		

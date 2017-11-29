@@ -64,9 +64,12 @@ public class Barrel extends MovingGameObject implements Runnable{
 		this.vPos += 2;
 		this.polygon.setTranslateY(this.vPos-Settings.barrelStartingPosY);
 		if(gameState.checkPolygonCollision(this.polygon)){
-			int translate = gameState.getCollidingPlatform(this.polygon).getTilt()/10;
-			gripToPlatForm();
-			throw new CollisionException(translate);		
+			Platform collidingPlatform = gameState.getCollidingPlatform(this.polygon);
+			if(collidingPlatform != null){
+			  int translate = collidingPlatform.getTilt()/10;
+			  gripToPlatForm();
+			  throw new CollisionException(translate);	
+			}
 		}
 	}
 
@@ -87,6 +90,7 @@ public class Barrel extends MovingGameObject implements Runnable{
 
 	@Override
 	public synchronized void run() {
+		System.out.println("spawned new barrel");
 		while (true) {
 			try { 
 				Thread.sleep(33);

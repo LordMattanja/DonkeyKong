@@ -30,6 +30,11 @@ public class MainApplication extends Application{
 	public boolean isGameActive() {
 		return gameActive;
 	}
+	
+	public void setGameActive(boolean active){
+		gameActive = active;
+	}
+	
 	public Scene getLevelScene() {
 		return levelScene;
 	}

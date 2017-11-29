@@ -1,8 +1,10 @@
 package gameLogic;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
+import gui.MainApplication;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 import objects.Barrel;
@@ -24,6 +26,7 @@ public class GameState {
 	private ArrayList<StaticGameObject> staticGameObjects;
 	private ArrayList<Platform> platforms;
 	private ArrayList<Barrel> barrels;
+	private MainApplication main;
 	
 	public Player getPlayer() {
 		return player;
@@ -58,6 +61,7 @@ public class GameState {
 	
 	
 	public GameState() {
+		main = MainApplication.getMain();
 		Random rand = new Random();
 		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY, this);
 		movingGameObjects = new ArrayList<>();
@@ -76,12 +80,13 @@ public class GameState {
 		platforms.add(new Platform(-5.0, Settings.playerStartingPosY+30.01, Settings.platformLength, true, 0));
 		staticGameObjects.add(platforms.get(Settings.numberOfPlatforms));
 		addBarrel();
+		new Thread(player).start();
 	}
 	
 	public boolean checkObjectCollision(GameObject obj){
 		if(obj == player && player.isClimbing()) return false;
 		for(int i = 0; i < platforms.size(); i++){
-			Shape intersecting = Shape.intersect(obj.getPolygon(), platforms.get(i).getPolygon());
+			Shape intersecting = Shape.intersect((Shape)obj.getPolygon(), (Shape)platforms.get(i).getPolygon());
 			if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
 				return true;
 			}
@@ -91,7 +96,7 @@ public class GameState {
 	
 	public boolean checkPolygonCollision(Polygon poly){
 		for(int i = 0; i < platforms.size(); i++){
-			Shape intersecting = Shape.intersect(poly, platforms.get(i).getPolygon());
+			Shape intersecting = Shape.intersect((Shape)poly, (Shape)platforms.get(i).getPolygon());
 			if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
 				return true;
 			}
@@ -101,7 +106,7 @@ public class GameState {
 
 	public Platform getCollidingPlatform(Polygon poly){
 		for(int i = 0; i < platforms.size(); i++){
-			Shape intersecting = Shape.intersect(poly, platforms.get(i).getPolygon());
+			Shape intersecting = Shape.intersect((Shape)poly, (Shape)platforms.get(i).getPolygon());
 			if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
 				return platforms.get(i);
 			}
@@ -109,17 +114,27 @@ public class GameState {
 		return null;
 	}
 	
+	public boolean playerBarrelCollision(){
+		for (Barrel barrel : barrels) {
+			Shape intersectingShape = Polygon.intersect((Shape)player.getPolygon(), (Shape)barrel.getPolygon());
+			if(intersectingShape.getBoundsInParent().getHeight() > 0 || intersectingShape.getBoundsInParent().getWidth() > 0){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public boolean canClimb(){
 		for (StaticGameObject staticObject : staticGameObjects) {
 			if(staticObject.getClass().equals(Ladder.class)){
-				if(Shape.intersect(player.getPolygon(),staticObject.getPolygon()).getBoundsInParent().getWidth() > 10){
+				Shape intersecting = Shape.intersect((Shape)player.getPolygon(), (Shape)staticObject.getPolygon());
+				if(intersecting.getBoundsInParent().getWidth() > 10 && intersecting.getBoundsInParent().getHeight() > 15){
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-	
 	
 	protected void addBarrel(){
 		Barrel barrel = new Barrel(Settings.barrelStartingPosX, Settings.barrelStartingPosY, false, this);
@@ -128,5 +143,10 @@ public class GameState {
 		new Thread(barrel).start();
 	}
 	
-}
+	public void endGame(){
+		main.setGameActive(false);
+		System.out.println("game over");
+	}
 	
+	
+}

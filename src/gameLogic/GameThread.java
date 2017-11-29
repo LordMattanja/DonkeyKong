@@ -42,8 +42,7 @@ public class GameThread extends Thread{
 			}
 			player.applyGravity();
 			
-			
-			contrLvl.repaint();
+		
 			count++;
 			
 			try {

@@ -3,6 +3,7 @@ package objects;
 import gameLogic.GameState;
 import gui.LevelController;
 import gui.MainApplication;
+import javafx.beans.property.IntegerProperty;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import utils.Settings;
@@ -11,6 +12,7 @@ public class Player extends MovingGameObject {
 
 	private Double hPos, vPos, vSpeed = 2.0;
 	private int health;
+	private IntegerProperty healthProperty;
 	private boolean collision, isPressedKeyRight = false, isPressedKeyLeft = false, isPressedKeyUp = false, isPressedKeyDown = false, grounded = false, isClimbing = false, canClimb = false;
 	private Polygon polygon;
 	private GameState gamestate;
@@ -83,7 +85,6 @@ public class Player extends MovingGameObject {
 		this.health = 3;
 		polygon.setFill(Color.CRIMSON);
 		polygon.getPoints().setAll(new Double[]{hPos, vPos, hPos, vPos+30, hPos+20, vPos+30, hPos+20, vPos});
-		System.out.println(hPos);
 	}
 
 	private void resolveCollision(boolean vertical){
@@ -206,7 +207,21 @@ public class Player extends MovingGameObject {
 
 	@Override
 	public void run() {
-		
+		while (health > 0){
+			if(gamestate.playerBarrelCollision()){
+				health--;
+				
+			}
+			try {
+				Thread.sleep(33);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if(health == 0){
+			gamestate.endGame();
+		}
 	}
 
 }
