@@ -73,7 +73,7 @@ public class MainApplication extends Application{
 			e.printStackTrace();
 		}
 		window.setHeight(Settings.playerStartingPosY+125);
-		window.setWidth(750);
+		window.setWidth(545);
 		levelScene = new Scene(root, 750, Settings.playerStartingPosY+125);
 		contrLevel = loader.getController();
 		window.setScene(levelScene);

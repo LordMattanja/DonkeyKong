@@ -25,7 +25,7 @@ public class GameThread extends Thread{
 		System.out.println("running");
 		int count = 0;
 		while (main.isGameActive()) {
-			if(count % 40 == 0){
+			if(count % 80 == 0){
 				gameState.addBarrel();
 			}
 			if(player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0-.0 && player.getvPos() < 800)) {

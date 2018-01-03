@@ -2,8 +2,15 @@ package objects;
 
 import Exceptions.CollisionException;
 import gameLogic.GameState;
+import gui.MainApplication;
+import javafx.animation.Interpolator;
+import javafx.animation.PathTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Polyline;
+import javafx.util.Duration;
 import utils.Settings;
 
 public class Barrel extends MovingGameObject implements Runnable{
@@ -13,6 +20,7 @@ public class Barrel extends MovingGameObject implements Runnable{
 	private boolean collision, rolling = false;
 	private Polygon polygon;
 	private GameState gameState;
+	private PathTransition transition;
 
 	public Barrel(Double hPos, Double vPos, boolean collision, GameState gs) {
 		gameState = gs;
@@ -21,6 +29,43 @@ public class Barrel extends MovingGameObject implements Runnable{
 		this.polygon = new Polygon();
 		this.polygon.setFill(Color.AQUA);
 		this.polygon.getPoints().setAll(new Double[]{ hPos, vPos, hPos+15, vPos, hPos + 15, vPos+15, hPos, vPos+15 });
+		this.transition = new PathTransition();
+		Polyline path = new Polyline();
+		Double verticalValue = 35.0;
+		Double horizontalValue = 10.0;
+		for(int i = 0; i < Settings.numberOfPlatforms*2+1; i++){
+			Double[] array = new Double[] {
+					horizontalValue, verticalValue, 
+			};			
+			if(i%4 == 0) {
+				horizontalValue += Settings.tiltedPlatformLength;
+				verticalValue += 20;
+			} else if(i%2 != 0) {
+				verticalValue += 600/Settings.numberOfPlatforms-20;
+			} else if(i%2 == 0) {
+				horizontalValue -= Settings.tiltedPlatformLength;
+				verticalValue += 20;
+			}
+			path.getPoints().addAll(array);
+		}
+		horizontalValue+=Settings.platformLength;
+		path.getPoints().addAll(new Double[] {
+				horizontalValue, verticalValue, 
+		});
+		transition.setCycleCount(1);
+		transition.setDuration(Duration.seconds(35));
+		transition.setInterpolator(Interpolator.EASE_OUT);
+		transition.setNode(polygon);
+		transition.setPath(path);
+		Barrel barrel = this;
+		transition.setOnFinished(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent event) {
+				MainApplication.getMain().getContrLevel().removeObject(barrel);
+			}
+		});
+		transition.play();
 	}
 
 
@@ -90,24 +135,25 @@ public class Barrel extends MovingGameObject implements Runnable{
 
 	@Override
 	public synchronized void run() {
-		System.out.println("spawned new barrel");
-		while (true) {
-			try { 
-				Thread.sleep(33);
-				if(!rolling) {
-					fall();					
-				} else {
-					roll();
-				}				
-				// TODO check if valid
-			} catch (CollisionException e) {
-				translate = e.getPlatformTilt();
-				rolling = true;
-				// TODO: handle exception
-			} catch (InterruptedException e) {
-				// TODO: handle exception
-			}
-		}
+		long threadId = Thread.currentThread().getId();
+    System.out.println("Thread # " + threadId + " is doing this task");
+//		while (true) { //TODO 
+//			try { 
+//				Thread.sleep(33);
+//				if(!rolling) {
+//					fall();					
+//				} else {
+//					roll();
+//				}	
+//				// TODO check if valid
+//			} catch (CollisionException e) {
+//				translate = e.getPlatformTilt();
+//				rolling = true;
+//				// TODO: handle exception
+//			} catch (InterruptedException e) {
+//				// TODO: handle exception
+//			}
+//		}
 	}
 
 }

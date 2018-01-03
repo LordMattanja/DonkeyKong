@@ -4,6 +4,7 @@ import gameLogic.GameState;
 import gui.LevelController;
 import gui.MainApplication;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import utils.Settings;
@@ -13,6 +14,10 @@ public class Player extends MovingGameObject {
 	private Double hPos, vPos, vSpeed = 2.0;
 	private int health;
 	private IntegerProperty healthProperty;
+	public IntegerProperty getHealthProperty() {
+		return healthProperty;
+	}
+
 	private boolean collision, isPressedKeyRight = false, isPressedKeyLeft = false, isPressedKeyUp = false, isPressedKeyDown = false, grounded = false, isClimbing = false, canClimb = false;
 	private Polygon polygon;
 	private GameState gamestate;
@@ -82,7 +87,7 @@ public class Player extends MovingGameObject {
 		this.hPos = hPosition;
 		this.vPos = vPosition;
 		this.polygon = new Polygon();
-		this.health = 3;
+		this.healthProperty = new SimpleIntegerProperty(3);
 		polygon.setFill(Color.CRIMSON);
 		polygon.getPoints().setAll(new Double[]{hPos, vPos, hPos, vPos+30, hPos+20, vPos+30, hPos+20, vPos});
 	}
@@ -150,7 +155,7 @@ public class Player extends MovingGameObject {
 		}
 	}
 	
-	public void move() {
+	public  void move() {
 	    if(isPressedKeyLeft && !isPressedKeyRight && hPos >= 5.0){
 	    	hPos -= 5.0;
 	    } else if(!isPressedKeyLeft && isPressedKeyRight && hPos <= 700){
@@ -207,10 +212,10 @@ public class Player extends MovingGameObject {
 
 	@Override
 	public void run() {
-		while (health > 0){
+		while (healthProperty.intValue() > 0){
 			if(gamestate.playerBarrelCollision()){
-				health--;
-				
+				healthProperty.setValue(healthProperty.intValue()-1);
+				System.out.println("Health : " + healthProperty.intValue());
 			}
 			try {
 				Thread.sleep(33);
@@ -219,7 +224,7 @@ public class Player extends MovingGameObject {
 				e.printStackTrace();
 			}
 		}
-		if(health == 0){
+		if(healthProperty.intValue() <= 0){
 			gamestate.endGame();
 		}
 	}

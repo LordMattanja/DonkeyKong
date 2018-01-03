@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.shape.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
@@ -9,10 +11,13 @@
    <children>
       <VBox layoutX="2.0" layoutY="-1.0" prefHeight="834.0" prefWidth="682.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="-1.0">
          <children>
-            <Pane prefHeight="100.0" prefWidth="682.0" />
-            <Pane fx:id="gamePane" prefHeight="699.0" prefWidth="682.0" VBox.vgrow="ALWAYS" />
+            <Pane prefHeight="100.0" prefWidth="682.0">
+               <children>
+                  <Label layoutX="453.0" layoutY="42.0" text="Health: " />
+                  <Label fx:id="playerHealthLabel" layoutX="494.0" layoutY="42.0" text="3" />
+               </children></Pane>
+            <AnchorPane fx:id="gamePane" prefHeight="739.0" prefWidth="682.0" />
          </children>
       </VBox>
    </children>
 </AnchorPane>
-
