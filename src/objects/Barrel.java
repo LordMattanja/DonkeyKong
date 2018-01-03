@@ -33,7 +33,7 @@ public class Barrel extends MovingGameObject implements Runnable{
 		Polyline path = new Polyline();
 		Double verticalValue = 35.0;
 		Double horizontalValue = 10.0;
-		for(int i = 0; i < Settings.numberOfPlatforms*2+1; i++){
+		for(int i = 0; i < Settings.numberOfPlatforms*2; i++){
 			Double[] array = new Double[] {
 					horizontalValue, verticalValue, 
 			};			
@@ -48,9 +48,10 @@ public class Barrel extends MovingGameObject implements Runnable{
 			}
 			path.getPoints().addAll(array);
 		}
-		horizontalValue+=Settings.platformLength;
+		verticalValue = Settings.playerStartingPosY+15;
 		path.getPoints().addAll(new Double[] {
 				horizontalValue, verticalValue, 
+				horizontalValue+Settings.tiltedPlatformLength, verticalValue
 		});
 		transition.setCycleCount(1);
 		transition.setDuration(Duration.seconds(35));

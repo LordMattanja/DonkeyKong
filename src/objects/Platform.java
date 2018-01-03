@@ -41,7 +41,7 @@ public class Platform extends StaticGameObject{
 		Double hPosLadder = 25.0+hPos;
 		ladders = new Ladder[numOfLadders];
 		for(int i = 0; i < numOfLadders; i++) {
-			hPosLadder = (tilt != 0)? rand.nextDouble()*(Settings.tiltedPlatformLength-50)/(numOfLadders-i)+hPosLadder : Settings.playerStartingPosX;
+			hPosLadder = (tilt != 0)? rand.nextDouble()*(length-50)/(numOfLadders-i)+hPosLadder : Settings.playerStartingPosX;
 			ladders[i] = new Ladder(hPosLadder, calcLadderVPos(hPosLadder), 600.0/Settings.numberOfPlatforms);
 		}
 	}
@@ -50,9 +50,9 @@ public class Platform extends StaticGameObject{
 		double vPosLadder = hPosLadder-hPos-Settings.tiltedPlatformLength/2;
 		vPosLadder = vPosLadder/(Settings.tiltedPlatformLength/2)*tilt;
 		if(hPosLadder < hPos + Settings.tiltedPlatformLength/2) {
-			return vPosLadder*-1 + vPos + tilt;
+			return vPosLadder*-1 + vPos;
 		}
-		return vPosLadder + vPos - tilt;
+		return vPosLadder + vPos + 15;
 	}
 
 }
