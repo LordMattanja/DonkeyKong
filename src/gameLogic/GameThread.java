@@ -28,7 +28,7 @@ public class GameThread extends Thread{
 			if(count % 80 == 0){
 				gameState.addBarrel();
 			}
-			if(player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0-.0 && player.getvPos() < 800)) {
+			if(player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0.0 && player.getvPos() < 800)) {
 				player.move();
 			}
 			if(gameState.canClimb()){
@@ -40,8 +40,6 @@ public class GameThread extends Thread{
 				player.setCanClimb(false);
 				player.setClimbing(false);
 			}
-			player.applyGravity();
-			
 		
 			count++;
 			

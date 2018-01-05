@@ -69,12 +69,13 @@ public class GameState {
 		barrels = new ArrayList<Barrel>();
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
 			int tilt = (i%2 == 0)? -10 : 10;
-			platforms.add(new Platform(25.0*(i%2), 600/Settings.numberOfPlatforms*i+50.0, Settings.tiltedPlatformLength, true, tilt, rand.nextInt(2)+1));
+			Platform platform = new Platform(25.0*(i%2), 600/Settings.numberOfPlatforms*i+50.0, Settings.tiltedPlatformLength, true, tilt, rand.nextInt(2)+1);
+			platforms.add(platform);
 			staticGameObjects.add(platforms.get(i));
+			addLadder(platform.getLadders());
 		}
-		platforms.add(new Platform(-5.0, Settings.playerStartingPosY+30.01, Settings.platformLength, true, 0, 1));
+		platforms.add(new Platform(-5.0, Settings.playerStartingPosY+.01, Settings.platformLength, true, 0, 1));
 		staticGameObjects.add(platforms.get(Settings.numberOfPlatforms));
-		new Thread(player).start();
 	}
 	
 	public synchronized boolean checkObjectCollision(GameObject obj){
@@ -104,28 +105,50 @@ public class GameState {
 		return false;
 	}
 
-	public synchronized Platform getCollidingPlatform(Polygon poly){
-		if(poly.getPoints().isEmpty()) return null;
+	public synchronized Platform getCollidingPlatform(){
+		double x = player.gethPos(), y = player.getvPos();
 		for(Platform platform : platforms){
-			if(platform.getPolygon().getBoundsInParent().intersects(player.getPolygon().getBoundsInParent())) {
-				if(platform.getPolygon().getPoints().isEmpty()) return null;
-				Shape intersecting = Shape.intersect((Shape)poly, (Shape)platform.getPolygon());
-				if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
-					return platform;
+//				if(platform.getPolygon().getPoints().isEmpty()) return null;
+				if(platform.getPolygon().getBoundsInLocal().getMinY() - y > 30) continue;
+				for(int i = 0; i < 2; i++) {
+					x = player.gethPos();
+					for(int j = 0; j < 2; j++) {
+						if(platform.getPolygon().contains(x, y)){
+						  return platform;
+						}
+						x = player.gethPos() + 20;
+					}
+					y = player.getvPos() - 30;
 				}
+				y = player.getvPos();
 			}
-		}
 		return null;
 	}
 	
 	public synchronized boolean playerBarrelCollision(){
+		double x = player.gethPos(), y = player.getvPos();
 		for (Barrel barrel : barrels) {
-			if(barrel.getPolygon().getBoundsInParent().intersects(player.getPolygon().getBoundsInParent())) {
-				Shape intersectingShape = Polygon.intersect((Shape)player.getPolygon(), (Shape)barrel.getPolygon());
-				if(intersectingShape.getBoundsInParent().getHeight() > 0 || intersectingShape.getBoundsInParent().getWidth() > 0){
-					main.getContrLevel().removeObject(barrel);
-					barrels.remove(barrel);
-					movingGameObjects.remove(barrel);
+			if(barrel.getPolygon().getBoundsInParent().getMinY() - y > 45) continue;
+				for(int i = 0; i < 2; i++) {
+					x = player.gethPos();
+					for(int j = 0; j < 2; j++) {
+						if(barrel.getPolygon().contains(x, y)){
+						  return true;
+						}
+						x = player.gethPos() + 20;
+					}
+					y = player.getvPos() - 30;
+				}
+				y = player.getvPos();
+			}
+		return false;
+	}
+	
+	public synchronized boolean canClimb(){
+		for (StaticGameObject staticObject : staticGameObjects) {
+			if(staticObject.getClass().equals(Ladder.class)){
+				Shape intersecting = Shape.intersect((Shape)player.getPolygon(), (Shape)staticObject.getPolygon());
+				if(intersecting.getBoundsInParent().getWidth() > 10 && intersecting.getBoundsInParent().getHeight() > 1){
 					return true;
 				}
 			}
@@ -133,14 +156,21 @@ public class GameState {
 		return false;
 	}
 	
-	public boolean canClimb(){
-		for (StaticGameObject staticObject : staticGameObjects) {
-			if(staticObject.getClass().equals(Ladder.class)){
-				Shape intersecting = Shape.intersect((Shape)player.getPolygon(), (Shape)staticObject.getPolygon());//TODO Fix missing initial moveto in path definition
-				if(intersecting.getBoundsInParent().getWidth() > 10 && intersecting.getBoundsInParent().getHeight() > 15){
-					return true;
+	public boolean playerPlatformCollision() {
+		double x = player.gethPos(), y = player.getvPos();
+		for(Platform platform : platforms) {
+			if(platform.getPolygon().getBoundsInLocal().getMinY() - y > 30) continue;
+			for(int i = 0; i < 2; i++) {
+				x = player.gethPos();
+				for(int j = 0; j < 2; j++) {
+					if(platform.getPolygon().contains(x, y)){
+					  return true;
+					}
+					x = player.gethPos() + 20;
 				}
+				y = player.getvPos() - 30;
 			}
+			y = player.getvPos();
 		}
 		return false;
 	}
@@ -158,7 +188,6 @@ public class GameState {
 		barrels.add(barrel);
 		System.out.println("added barrel");
 		movingGameObjects.add(barrel);
-		new Thread(barrel).start();
 		main.getContrLevel().paintObject(barrel);
 	}
 	
@@ -166,6 +195,5 @@ public class GameState {
 		main.setGameActive(false);
 		System.out.println("game over");
 	}
-	
 	
 }

@@ -3,7 +3,7 @@ package utils;
 public class Settings {
 
 	public static final Double playerStartingPosX = 50.0;
-	public static final Double playerStartingPosY = 620.0;
+	public static final Double playerStartingPosY = 650.0;
 	
 	public static final Double barrelStartingPosX = 80.0;
 	public static final Double barrelStartingPosY = 10.0;

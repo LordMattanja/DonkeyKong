@@ -7,66 +7,33 @@ import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Polyline;
 import javafx.util.Duration;
 import utils.Settings;
 
-public class Barrel extends MovingGameObject implements Runnable{
+public class Barrel extends MovingGameObject{
 	
-	private Double hPos, vPos;
+	private double hPos, vPos;
 	int translate;
 	private boolean collision, rolling = false;
 	private Polygon polygon;
 	private GameState gameState;
 	private PathTransition transition;
+	private Image img = new Image(this.getClass().getResource("Smiley2.png").toExternalForm());
 
 	public Barrel(Double hPos, Double vPos, boolean collision, GameState gs) {
 		gameState = gs;
 		this.hPos = hPos;
 		this.vPos = vPos;
 		this.polygon = new Polygon();
-		this.polygon.setFill(Color.AQUA);
+		this.polygon.setFill(new ImagePattern(img));
 		this.polygon.getPoints().setAll(new Double[]{ hPos, vPos, hPos+15, vPos, hPos + 15, vPos+15, hPos, vPos+15 });
-		this.transition = new PathTransition();
-		Polyline path = new Polyline();
-		Double verticalValue = 35.0;
-		Double horizontalValue = 10.0;
-		for(int i = 0; i < Settings.numberOfPlatforms*2; i++){
-			Double[] array = new Double[] {
-					horizontalValue, verticalValue, 
-			};			
-			if(i%4 == 0) {
-				horizontalValue += Settings.tiltedPlatformLength;
-				verticalValue += 20;
-			} else if(i%2 != 0) {
-				verticalValue += 600/Settings.numberOfPlatforms-20;
-			} else if(i%2 == 0) {
-				horizontalValue -= Settings.tiltedPlatformLength;
-				verticalValue += 20;
-			}
-			path.getPoints().addAll(array);
-		}
-		verticalValue = Settings.playerStartingPosY+15;
-		path.getPoints().addAll(new Double[] {
-				horizontalValue, verticalValue, 
-				horizontalValue+Settings.tiltedPlatformLength, verticalValue
-		});
-		transition.setCycleCount(1);
-		transition.setDuration(Duration.seconds(35));
-		transition.setInterpolator(Interpolator.EASE_OUT);
-		transition.setNode(polygon);
-		transition.setPath(path);
-		Barrel barrel = this;
-		transition.setOnFinished(new EventHandler<ActionEvent>() {
-			
-			@Override
-			public void handle(ActionEvent event) {
-				MainApplication.getMain().getContrLevel().removeObject(barrel);
-			}
-		});
-		transition.play();
+		
+		MainApplication.getMain().getContrLevel().createBarrelPath(this);
 	}
 
 
@@ -76,68 +43,78 @@ public class Barrel extends MovingGameObject implements Runnable{
 	}
 
 
+	public Image getImg() {
+		return img;
+	}
+
+
 	@Override
-	public Double gethPos() {
+	public double gethPos() {
 		return hPos;
 	}
 
 
 	@Override
-	public void sethPos(Double hPos) {
+	public void sethPos(double hPos) {
 		this.hPos = hPos;
 	}
 
 
 	@Override
-	public Double getvPos() {
+	public double getvPos() {
 		return vPos;
 	}
 
 
 	@Override
-	public void setvPos(Double vPos) {
+	public void setvPos(double vPos) {
 		this.vPos = vPos;
 	}
 	
-	private void gripToPlatForm() {
-		while(gameState.checkPolygonCollision(this.polygon)) {
-			vPos -= .1;
-			polygon.setTranslateY(this.vPos-Settings.barrelStartingPosY);
-		}
+	public void setTransition(PathTransition transition) {
+		this.transition = transition;
 	}
 
-	private synchronized void fall() throws CollisionException {
-		this.vPos += 2;
-		this.polygon.setTranslateY(this.vPos-Settings.barrelStartingPosY);
-		if(gameState.checkPolygonCollision(this.polygon)){
-			Platform collidingPlatform = gameState.getCollidingPlatform(this.polygon);
-			if(collidingPlatform != null){
-			  int translate = collidingPlatform.getTilt()/10;
-			  gripToPlatForm();
-			  throw new CollisionException(translate);	
-			}
-		}
-	}
 
-	private synchronized void roll() {
-		if(hPos > 50 + Settings.tiltedPlatformLength && translate < 0 || hPos < 75 && translate > 0) {
-			rolling = false;
-			return;
-		}
-		this.hPos -= translate;
-		if(translate != 0){
-			this.vPos += (20.0/Settings.tiltedPlatformLength);
-			this.polygon.setTranslateY(vPos-Settings.barrelStartingPosY);
-		} else {
-			hPos += 1;
-		}
-		this.polygon.setTranslateX(hPos-Settings.barrelStartingPosX);
-	}
+//	private void gripToPlatForm() {
+//		while(gameState.checkPolygonCollision(this.polygon)) {
+//			vPos -= .1;
+//			polygon.setTranslateY(this.vPos-Settings.barrelStartingPosY);
+//		}
+//	}
 
-	@Override
-	public synchronized void run() {
-		long threadId = Thread.currentThread().getId();
-    System.out.println("Thread # " + threadId + " is doing this task");
+//	private synchronized void fall() throws CollisionException {
+//		this.vPos += 2;
+//		this.polygon.setTranslateY(this.vPos-Settings.barrelStartingPosY);
+//		if(gameState.checkPolygonCollision(this.polygon)){
+//			Platform collidingPlatform = gameState.getCollidingPlatform(this.polygon);
+//			if(collidingPlatform != null){
+//			  int translate = collidingPlatform.getTilt()/10;
+//			  gripToPlatForm();
+//			  throw new CollisionException(translate);	
+//			}
+//		}
+//	}
+
+//	private synchronized void roll() {
+//		if(hPos > 50 + Settings.tiltedPlatformLength && translate < 0 || hPos < 75 && translate > 0) {
+//			rolling = false;
+//			return;
+//		}
+//		this.hPos -= translate;
+//		if(translate != 0){
+//			this.vPos += (20.0/Settings.tiltedPlatformLength);
+//			this.polygon.setTranslateY(vPos-Settings.barrelStartingPosY);
+//		} else {
+//			hPos += 1;
+//		}
+//		this.polygon.setTranslateX(hPos-Settings.barrelStartingPosX);
+//	}
+
+//	@Override
+//	public synchronized void run() {
+//		long threadId = Thread.currentThread().getId();
+//    System.out.println("Thread # " + threadId + " is doing this task");
 //		while (true) { //TODO 
 //			try { 
 //				Thread.sleep(33);
@@ -155,6 +132,6 @@ public class Barrel extends MovingGameObject implements Runnable{
 //				// TODO: handle exception
 //			}
 //		}
-	}
+//	}
 
 }

@@ -1,14 +1,14 @@
 package objects;
 
-public abstract class MovingGameObject extends GameObject implements Runnable{
+public abstract class MovingGameObject extends GameObject{
 	
 
-	public abstract Double gethPos();
+	public abstract double gethPos();
 
-	public abstract void sethPos(Double hPos);
+	public abstract void sethPos(double hPos);
 
-	public abstract  Double getvPos();
+	public abstract  double getvPos();
 	
-	public abstract void setvPos(Double vPos);
+	public abstract void setvPos(double vPos);
 
 }

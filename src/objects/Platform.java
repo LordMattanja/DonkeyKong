@@ -11,7 +11,7 @@ import utils.Settings;
 
 public class Platform extends StaticGameObject{
 	
-	private Double hPos, vPos;
+	private double hPos, vPos;
 	private int tilt;
 	private boolean collision;
 	private Polygon polygon;
@@ -29,7 +29,7 @@ public class Platform extends StaticGameObject{
 		return ladders;
 	}
 
-	public Platform(Double hPos, Double vPos, int length, boolean collision, int tilt, int numOfLadders) {
+	public Platform(double hPos, double vPos, int length, boolean collision, int tilt, int numOfLadders) {
 		super(hPos, vPos, collision);
 		this.vPos = vPos;
 		this.hPos = hPos;
@@ -38,7 +38,7 @@ public class Platform extends StaticGameObject{
 		this.tilt = tilt;
 		polygon.getPoints().setAll(new Double[]{hPos, vPos+tilt, hPos+length, vPos-tilt, hPos+length, vPos+15-tilt, hPos, vPos+15+tilt});
 		Random rand = new Random();
-		Double hPosLadder = 25.0+hPos;
+		double hPosLadder = 25.0+hPos;
 		ladders = new Ladder[numOfLadders];
 		for(int i = 0; i < numOfLadders; i++) {
 			hPosLadder = (tilt != 0)? rand.nextDouble()*(length-50)/(numOfLadders-i)+hPosLadder : Settings.playerStartingPosX;
