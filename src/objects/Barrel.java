@@ -25,15 +25,15 @@ public class Barrel extends MovingGameObject{
 	private PathTransition transition;
 	private Image img = new Image(this.getClass().getResource("Smiley2.png").toExternalForm());
 
-	public Barrel(Double hPos, Double vPos, boolean collision, GameState gs) {
-		gameState = gs;
+	public Barrel(double hPos, double vPos, boolean ingame, double size, int speed) {
 		this.hPos = hPos;
 		this.vPos = vPos;
 		this.polygon = new Polygon();
 		this.polygon.setFill(new ImagePattern(img));
-		this.polygon.getPoints().setAll(new Double[]{ hPos, vPos, hPos+15, vPos, hPos + 15, vPos+15, hPos, vPos+15 });
-		
-		MainApplication.getMain().getContrLevel().createBarrelPath(this);
+		this.polygon.getPoints().setAll(new Double[]{ hPos, vPos, hPos+size, vPos, hPos + size, vPos-size, hPos, vPos-size });
+		if(ingame) {
+			MainApplication.getMain().getContrLevel().createBarrelPath(this, speed);
+		}
 	}
 
 

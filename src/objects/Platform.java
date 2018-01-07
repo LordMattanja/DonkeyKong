@@ -11,7 +11,7 @@ import utils.Settings;
 
 public class Platform extends StaticGameObject{
 	
-	private double hPos, vPos;
+	private double hPos, vPos, height;
 	private int tilt;
 	private boolean collision;
 	private Polygon polygon;
@@ -30,29 +30,44 @@ public class Platform extends StaticGameObject{
 	}
 
 	public Platform(double hPos, double vPos, int length, boolean collision, int tilt, int numOfLadders) {
-		super(hPos, vPos, collision);
 		this.vPos = vPos;
 		this.hPos = hPos;
+		this.height = Settings.platformHeight;
 		polygon = new Polygon();
 		polygon.setFill(Color.BURLYWOOD);
 		this.tilt = tilt;
-		polygon.getPoints().setAll(new Double[]{hPos, vPos+tilt, hPos+length, vPos-tilt, hPos+length, vPos+15-tilt, hPos, vPos+15+tilt});
+		polygon.getPoints().setAll(new Double[]{hPos, vPos+tilt, hPos+length, vPos-tilt, hPos+length, vPos+23-tilt, hPos, vPos+23+tilt});
 		Random rand = new Random();
 		double hPosLadder = 25.0+hPos;
 		ladders = new Ladder[numOfLadders];
 		for(int i = 0; i < numOfLadders; i++) {
-			hPosLadder = (tilt != 0)? rand.nextDouble()*(length-50)/(numOfLadders-i)+hPosLadder : Settings.playerStartingPosX;
-			ladders[i] = new Ladder(hPosLadder, calcLadderVPos(hPosLadder), 600.0/Settings.numberOfPlatforms);
+			hPosLadder = (tilt != 0)? rand.nextDouble()*(length-50)/(numOfLadders)+i*(length-50)/(numOfLadders) : Settings.playerStartingPosX;
+			double verticalShift = calcLadderVPos(hPosLadder);
+			ladders[i] = new Ladder(hPosLadder, verticalShift + vPos, 500.0/Settings.numberOfPlatforms+-2*verticalShift);
 		}
 	}
 	
 	private double calcLadderVPos(double hPosLadder) {
 		double vPosLadder = hPosLadder-hPos-Settings.tiltedPlatformLength/2;
 		vPosLadder = vPosLadder/(Settings.tiltedPlatformLength/2)*tilt;
-		if(hPosLadder < hPos + Settings.tiltedPlatformLength/2) {
-			return vPosLadder*-1 + vPos;
-		}
-		return vPosLadder + vPos + 15;
+		return vPosLadder*-1;
+	}
+
+	@Override
+	public double gethPos() {
+		return hPos;
+	}
+
+
+	@Override
+	public double getvPos() {
+		return vPos;
+	}
+
+
+	@Override
+	public double getHeight() {
+		return height;
 	}
 
 }

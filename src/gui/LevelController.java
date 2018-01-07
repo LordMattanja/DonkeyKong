@@ -22,7 +22,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -53,8 +55,10 @@ public class LevelController implements Initializable{
 	private IntegerProperty playerHealthProperty = new SimpleIntegerProperty();
 	@FXML 
 	private Label playerHealthLabel;
+	@FXML 
+	private Label levelLabel;
 
-	private boolean isPressedKeyRight, isPressedKeyLeft;
+	private boolean isPressedKeyRight,  isPressedKeyLeft;
 	
 	public boolean isPressedKeyRight() {
 		return isPressedKeyRight;
@@ -70,36 +74,38 @@ public class LevelController implements Initializable{
 		window = main.getWindow();
 		gameState = main.getGamestate();
 		
-		playerPolygon = player.getPolygon();
-//		playerHealthProperty.bind(player.getHealthProperty());
-		playerHealthLabel.textProperty().bind(playerHealthProperty.asString());
-		
-		gamePane.getChildren().add(playerPolygon);
-		
-		movingObjects = gameState.getMovingGameObjects();
-		ArrayList<objects.Platform> platforms = gameState.getPlatforms();
-		
-//		for(int i = 0; i < movingObjects.size(); i++){
-//			gamePane.getChildren().add(movingObjects.get(i).getPolygon());
-//		}		
-		for (int i = 0; i < platforms.size(); i++){
-			gamePane.getChildren().add(platforms.get(i).getPolygon());
-			Ladder[] ladders = platforms.get(i).getLadders();
-			for(int j = 0; j < ladders.length; j++) {
-				gamePane.getChildren().add(ladders[j].getPolygon());
-			}
-		}
 		
 	}
 	
 	public LevelController () {
-		main = MainApplication.getMain();
-		player = main.getGamestate().getPlayer();		
+		main = MainApplication.getMain();	
 	}
 	
 	
-	public void initGame() {
+	public void initGame() {	
+		System.out.println("initializing level");
+
+		player = main.getGamestate().getPlayer();	
 		scene = main.getLevelScene();
+		
+		levelLabel.setText("Level: " + main.getGamestate().getLevel());
+		
+		playerPolygon = player.getPolygon();
+		playerHealthProperty.bind(player.getHealthProperty());
+		playerHealthLabel.textProperty().bind(playerHealthProperty.asString());
+		
+		
+		movingObjects = gameState.getMovingGameObjects();
+		ArrayList<StaticGameObject> staticObjects = gameState.getStaticGameObjects();
+		
+//		for(int i = 0; i < movingObjects.size(); i++){
+//			gamePane.getChildren().add(movingObjects.get(i).getPolygon());
+//		}		
+		for (int i = 0; i < staticObjects.size(); i++){
+			gamePane.getChildren().add(staticObjects.get(i).getPolygon());
+		}
+
+		gamePane.getChildren().add(playerPolygon);
 		
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 				if(event.getCode() == KeyCode.LEFT) {
@@ -108,10 +114,9 @@ public class LevelController implements Initializable{
 					player.setPressedKeyRight(true);
 				}
 				if(event.getCode() == KeyCode.SPACE) {
-					if(player.isGrounded()){
-					  player.setVSpeed(-10.5);
+					if(player.isGrounded() || player.isClimbing()){
+					  player.setVSpeed(-8.5);
 					  player.setClimbing(false);
-					  System.out.println("jump: " + player.getvSpeed());
 					}
 				}	
 				if(event.getCode() == KeyCode.UP){
@@ -137,33 +142,33 @@ public class LevelController implements Initializable{
 		});
 	}
 	
-	public void createBarrelPath(Barrel barrel) {
+	public void createBarrelPath(Barrel barrel, int speed) {
 		Platform.runLater(new Runnable() {
 
 			@Override
 			public void run() {
 				PathTransition transition = new PathTransition();
 				Polyline path = new Polyline();
-				double verticalValue = 34.0;
-				double horizontalValue = 15.0;
+				double verticalValue = barrel.getvPos();
+				double horizontalValue = barrel.gethPos();
 				for (int i = 0; i < Settings.numberOfPlatforms * 2; i++) {
 					Double[] array = new Double[] { horizontalValue, verticalValue, };
 					if (i % 4 == 0) {
 						horizontalValue += Settings.tiltedPlatformLength;
 						verticalValue += 20;
 					} else if (i % 2 != 0) {
-						verticalValue += 600 / Settings.numberOfPlatforms - 20;
+						verticalValue += 500 / Settings.numberOfPlatforms - 20;
 					} else if (i % 2 == 0) {
 						horizontalValue -= Settings.tiltedPlatformLength;
 						verticalValue += 20;
 					}
 					path.getPoints().addAll(array);
 				}
-				verticalValue = Settings.playerStartingPosY;
+				verticalValue = Settings.playerStartingPosY-10;
 				path.getPoints().addAll(new Double[] { horizontalValue, verticalValue,
 						-5.0, verticalValue });
 				transition.setCycleCount(1);
-				transition.setDuration(Duration.seconds(35));
+				transition.setDuration(Duration.seconds(32+speed));
 				transition.setInterpolator(Interpolator.EASE_OUT);
 				transition.setNode(barrel.getPolygon());
 				transition.setPath(path);
@@ -179,35 +184,34 @@ public class LevelController implements Initializable{
 		});
 	}
 	
-	public synchronized void repaint(){
-//		System.out.println("repaintinG?");
-		Platform.runLater(new Runnable(){
-			@Override
-			public void run() {
-				while(main.isGameActive()){
+//	public synchronized void repaint(){
+////		System.out.println("repaintinG?");
+//		Platform.runLater(new Runnable(){
+//			@Override
+//			public void run() {
+//				while(main.isGameActive()){
 //				  movingObjects = gameState.getMovingGameObjects();
-				  gamePane.getChildren().remove(playerPolygon);
-				  gamePane.getChildren().add(playerPolygon);	
+//				  gamePane.getChildren().remove(playerPolygon);
+//				  gamePane.getChildren().add(playerPolygon);	
 //				  for(int i = 0; i < movingObjects.size(); i++){
 //					  if(movingObjects.get(i).getPolygon() != null){
 //						  gamePane.getChildren().remove(movingObjects.get(i).getPolygon());
 //					      gamePane.getChildren().add(movingObjects.get(i).getPolygon());				
 //					  }
 //				  }
-				}
+//				}
 //				try {
 //					Thread.sleep(33);
 //				} catch (InterruptedException e) {
 //					// TODO Auto-generated catch block
 //					e.printStackTrace();
 //				}
-			}
-			
-		});		
-	}
+//			}
+//			
+//		});		
+//	}
 	
 	public void paintObject(GameObject obj) {
-		System.out.println("painting barrel");
 		if (obj != null && obj.getPolygon() != null) {
 			Platform.runLater(new Runnable() {
 				@Override
@@ -217,15 +221,26 @@ public class LevelController implements Initializable{
 
 			});
 		}
-		System.out.println("barrel was painted");
 	}
 	
 	public void removeObject(GameObject obj) {
-		System.out.println("removing object");
 		Platform.runLater(new Runnable(){
 			@Override
 			public void run() {
 				gamePane.getChildren().remove(obj.getPolygon());
+			}
+		});
+	}
+	
+	public void gameOver() {
+		Platform.runLater(new Runnable() {			
+			@Override
+			public void run() {
+				Alert gameOverAlert = new Alert(AlertType.INFORMATION);
+				gameOverAlert.setTitle("Game Over!");
+				gameOverAlert.setContentText("Game Over \nScore: ");
+				gameOverAlert.show();
+				main.setMenuScene();
 			}
 		});
 	}

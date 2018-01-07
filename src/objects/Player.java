@@ -1,14 +1,14 @@
 package objects;
 
-import com.sun.xml.internal.ws.api.config.management.policy.ManagementAssertion.Setting;
+import com.sun.xml.internal.messaging.saaj.soap.ver1_1.Header1_1Impl;
 
 import gameLogic.GameState;
-import gui.LevelController;
 import gui.MainApplication;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import sun.applet.Main;
 import utils.Settings;
 
 public class Player extends MovingGameObject {
@@ -18,7 +18,7 @@ public class Player extends MovingGameObject {
 	private IntegerProperty healthProperty;
 	private boolean collision, isPressedKeyRight = false, isPressedKeyLeft = false, isPressedKeyUp = false, isPressedKeyDown = false, grounded = false, isClimbing = false, canClimb = false;
 	private Polygon polygon;
-	private GameState gamestate;
+	private GameState gameState;
 
 	public IntegerProperty getHealthProperty() {
 		return healthProperty;
@@ -98,14 +98,45 @@ public class Player extends MovingGameObject {
 		this.canClimb = canClimb; 
 	}
 
+
+	@Override
+	public double gethPos() {
+		return hPos;
+	}
+
+	@Override
+	public void sethPos(double hPos) {
+		this.hPos = hPos;
+	}
+
+	@Override
+	public double getvPos() {
+		return vPos;
+	}
+
+
+	public void setVSpeed(Double vSpeed) {
+		this.vSpeed = vSpeed;
+	}
+
+	@Override
+	public void setvPos(double vPos) {
+		this.vPos = vPos;		
+	}
+
+	public double getvSpeed() {
+		return vSpeed;
+	}
+	
 	public Player(double hPosition, double vPosition, GameState gs) {
-		gamestate = gs;
+		gameState = gs;
 		this.hPos = hPosition;
 		this.vPos = vPosition;
 		this.polygon = new Polygon();
 		this.healthProperty = new SimpleIntegerProperty(3);
-		polygon.setFill(Color.CRIMSON);
+		polygon.setFill(Color.STEELBLUE);
 		polygon.getPoints().setAll(new Double[]{hPos, vPos, hPos, vPos-30, hPos+20, vPos-30, hPos+20, vPos});
+		System.out.println("New PLayer: , hPos : "+ hPos + " vPos: "+ vPos);
 	}
 
 //	private void resolveCollision(boolean vertical){
@@ -148,12 +179,11 @@ public class Player extends MovingGameObject {
 //	}
 	
 	public void climb(){
-		System.out.println("climbing");
 		if(canClimb && isPressedKeyUp){
 			vPos -= 3.0;
 			vSpeed = 0.0;
 			isClimbing = true;
-		} else if( canClimb && isPressedKeyDown){
+		} else if(canClimb && isPressedKeyDown){
 			vPos += 3.0;
 			vSpeed = 0.0;
 			isClimbing = true;
@@ -212,12 +242,11 @@ public class Player extends MovingGameObject {
 		 } 
 		 
 		 grounded = checkIfGrounded();
-		 
 		//If the player presses the left key and is not on the left border
-		 if(isPressedKeyLeft && !isPressedKeyRight && hPos >= 5.0){
+		 if(!isClimbing && isPressedKeyLeft && !isPressedKeyRight && hPos >= 5.0){
 			  //the moveDistance is set to -5
 		    	hSpeed = (grounded || hSpeed == -5.0)? -5.0 : -2.0;
-		    } else if(!isPressedKeyLeft && isPressedKeyRight && hPos <= Settings.tiltedPlatformLength){ //If the player presses the right key and is not on the left border
+		    } else if(!isClimbing && !isPressedKeyLeft && isPressedKeyRight && hPos <= Settings.tiltedPlatformLength){ //If the player presses the right key and is not on the left border
 		      //the moveDistance is set to 5
 		    	hSpeed = (grounded || hSpeed == 5.0)? 5.0 : 2.0;;
 		    }	
@@ -227,7 +256,7 @@ public class Player extends MovingGameObject {
 		 checkAndResolveCollision(hSpeed, true);
 		 
 		 
-		 if(!gamestate.playerPlatformCollision()) {
+		 if(!gameState.playerPlatformCollision()) {
 			 javafx.application.Platform.runLater(new Runnable() {
 
 				@Override
@@ -245,31 +274,35 @@ public class Player extends MovingGameObject {
 	private void fall() {
 		vSpeed += (vSpeed < 15)? 1.0 : 0;
 		vPos += vSpeed;
-		if(gamestate.playerPlatformCollision()) {
-			gripToPlatform();
-			vSpeed = 0.0;
+		if(gameState.playerPlatformCollision()) {
+			if(vSpeed > 0) {
+				gripToPlatform();
+				vSpeed = 0.0;
+			} else {
+				checkAndResolveCollision(vSpeed, false);
+			}
 		}
 	}
 	
 	private void gripToPlatform() {
-		while(gamestate.playerPlatformCollision()) {
+		while(gameState.playerPlatformCollision()) {
 			vPos -= 0.1;
 		}
 	}
 	
 	private boolean checkIfGrounded() {
 		vPos += .5;
-		boolean grounded = gamestate.playerPlatformCollision();
+		boolean grounded = gameState.playerPlatformCollision();
 		vPos -= .5;
 		return grounded;
 	}
 	
 	private void checkAndResolveCollision(double moveDistance, boolean horizontal) {
-		if(gamestate.playerPlatformCollision()) {
-			Platform platform = gamestate.getCollidingPlatform();
+		if(gameState.playerPlatformCollision() && !isClimbing) {
+			Platform platform = gameState.getCollidingPlatform();
 			if(horizontal) {
 				hPos -= moveDistance;
-				if(platform != null && platform.getTilt() != 0) {
+				if(platform != null && platform.getTilt() != 0 && vPos-Settings.playerHeight < platform.getPolygon().getBoundsInParent().getMinY()) {
 					vPos -= Math.abs(((double)platform.getTilt())/Settings.tiltedPlatformLength/2*moveDistance);
 					hPos += moveDistance;
 					checkAndResolveCollision(moveDistance, horizontal);
@@ -277,37 +310,27 @@ public class Player extends MovingGameObject {
 			} else {
 				vPos -= moveDistance;
 			}
+		} else if(isClimbing) {
+			if(!horizontal) {
+			Platform platform = gameState.getCollidingPlatform();
+			Ladder ladder = gameState.getLadderPlayerIsUsing();
+			for(Ladder platformLadder : platform.getLadders()) {
+				if(ladder == platformLadder) {
+					vPos -= moveDistance;
+					break;
+				}
+			}
+			}
 		}
 	}
 	
-	
-	@Override
-	public double gethPos() {
-		return hPos;
-	}
-
-	@Override
-	public void sethPos(double hPos) {
-		this.hPos = hPos;
-	}
-
-	@Override
-	public double getvPos() {
-		return vPos;
-	}
-
-
-	public void setVSpeed(Double vSpeed) {
-		this.vSpeed = vSpeed;
-	}
-
-	@Override
-	public void setvPos(double vPos) {
-		this.vPos = vPos;		
-	}
-
-	public double getvSpeed() {
-		return vSpeed;
+	public void updatePlayerHealth() {
+		javafx.application.Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				healthProperty.setValue(healthProperty.intValue()-1);
+			}			
+		});		
 	}
 
 //	@Override

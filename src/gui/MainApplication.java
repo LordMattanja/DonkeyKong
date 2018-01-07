@@ -5,6 +5,7 @@ import java.io.IOException;
 import gameLogic.GameThread;
 import gameLogic.GameState;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -14,33 +15,22 @@ import utils.Settings;
 public class MainApplication extends Application{
 	
 	private Stage window;
-	private Scene levelScene;
-	private FXMLLoader loader;
-	private Pane root;
+	private Scene levelScene, menuScene;
+	private FXMLLoader levelLoader, menuLoader;
+	private Pane rootLevel, rootMenu;
 	private LevelController contrLevel;
-	private GameState gamestate;
+	private GameState gameState;
 	private GameThread gameThread;
 	private static MainApplication main;
-	private boolean gameActive = false;
 	
 	public Stage getWindow() {
 		return window;
-	}
-	
-	public boolean isGameActive() {
-		return gameActive;
-	}
-	
-	public void setGameActive(boolean active){
-		gameActive = active;
-	}
+	}	
 	
 	public Scene getLevelScene() {
 		return levelScene;
 	}
-	public void setLevelScene(Scene levelScene) {
-		this.levelScene = levelScene;
-	}
+
 	public LevelController getContrLevel() {
 		return contrLevel;
 	}
@@ -48,10 +38,10 @@ public class MainApplication extends Application{
 		this.contrLevel = contrLevel;
 	}
 	public GameState getGamestate() {
-		return gamestate;
+		return gameState;
 	}
 	public void setGamestate(GameState gamestate) {
-		this.gamestate = gamestate;
+		this.gameState = gamestate;
 	}
 	public GameThread getGameThread() {
 		return gameThread;
@@ -66,17 +56,20 @@ public class MainApplication extends Application{
 	
 	
 	private void initialize() {
-		loader = new FXMLLoader(getClass().getResource("Level.fxml"));
+		levelLoader = new FXMLLoader(getClass().getResource("Level.fxml"));
+		menuLoader = new FXMLLoader(getClass().getResource("Menu.fxml"));
 		try {
-			root = (Pane)loader.load();
+			rootLevel = (Pane)levelLoader.load();
+			rootMenu = (Pane)menuLoader.load();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		window.setHeight(Settings.playerStartingPosY+125);
-		window.setWidth(545);
-		levelScene = new Scene(root, 750, Settings.playerStartingPosY+125);
-		contrLevel = loader.getController();
-		window.setScene(levelScene);
+		window.setWidth(650);
+		levelScene = new Scene(rootLevel, Settings.sceneWidth, Settings.sceneHeight);
+		menuScene = new Scene(rootMenu, Settings.sceneWidth, Settings.sceneHeight);
+		contrLevel = levelLoader.getController();
+		window.setScene(menuScene);
 	}
 
 	@Override
@@ -84,17 +77,43 @@ public class MainApplication extends Application{
 		window = primaryStage;
 		main = this;
 
-		gamestate = new GameState();
-		gameThread = new GameThread();
+		gameState = new GameState();
 		
 		initialize();
 		
 		window.show();
-		gameActive = true;
-		contrLevel.initGame();
-		gameThread.initGameThread();
-		gameThread.start();
 		
+	}
+	
+	public void setMenuScene() {
+		window.setScene(menuScene);
+	}
+	
+	public void setLevelScene() {
+		window.setScene(levelScene);
+	}
+	
+	public synchronized void startAgain(boolean nextLevel) {
+		gameState.initLevel();
+		if(!nextLevel){
+			window.setScene(levelScene);
+			gameThread = new GameThread();
+			gameThread.initGameThread();
+		}
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				contrLevel.initGame();
+				gameState.setControlsEnabled(true);
+				gameState.setGameActive(true);
+				if (!nextLevel) {
+					gameThread.start();
+				} else {
+					gameThread.updatePlayer();
+					gameThread.resumeThread();
+				}
+			}
+		});		
 	}
 
 	public static void main(String[] args) {    

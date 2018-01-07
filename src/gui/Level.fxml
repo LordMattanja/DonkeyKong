@@ -11,11 +11,13 @@
    <children>
       <VBox layoutX="2.0" layoutY="-1.0" prefHeight="834.0" prefWidth="682.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="-1.0">
          <children>
-            <Pane prefHeight="100.0" prefWidth="682.0">
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="682.0" spacing="5.0">
                <children>
-                  <Label layoutX="453.0" layoutY="42.0" text="Health: " />
-                  <Label fx:id="playerHealthLabel" layoutX="494.0" layoutY="42.0" text="3" />
-               </children></Pane>
+                  <Label fx:id="levelLabel" text="Level: " />
+                  <Label text="Health: " />
+                  <Label fx:id="playerHealthLabel" text="3" />
+               </children>
+            </HBox>
             <AnchorPane fx:id="gamePane" prefHeight="739.0" prefWidth="682.0" />
          </children>
       </VBox>

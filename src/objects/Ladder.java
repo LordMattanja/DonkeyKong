@@ -6,7 +6,7 @@ import javafx.scene.shape.Polygon;
 public class Ladder extends StaticGameObject {
 	
 	private Platform platformBelow, platformAbove;
-	private int hPos, vPos;
+	private double hPos, vPos, height;
 	private boolean collision;
 	private Polygon polygon;
 	
@@ -16,11 +16,28 @@ public class Ladder extends StaticGameObject {
 		return polygon;
 	}
 
-	public Ladder(Double hPos, Double vPos, Double height) {
-		super(hPos, vPos, false);
+	public double getHeight() {
+		return height;
+	}
+
+	public Ladder(double hPos, double vPos, double height) {
+		this.hPos = hPos;
+		this.vPos = vPos;
+		this.height = height;
 		polygon = new Polygon();
 		polygon.setFill(Color.BROWN);
-		polygon.getPoints().setAll(new Double[]{hPos, vPos, hPos+20, vPos, hPos+20, vPos+height, hPos, vPos+height});
+		polygon.getPoints().setAll(new Double[]{hPos, vPos, hPos+25, vPos, hPos+25, vPos+height+2, hPos, vPos+height+2});
+	}
+
+	@Override
+	public double gethPos() {
+		return hPos;
+	}
+
+
+	@Override
+	public double getvPos() {
+		return vPos;
 	}
 
 	
