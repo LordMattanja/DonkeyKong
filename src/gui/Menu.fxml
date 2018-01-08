@@ -16,19 +16,19 @@
                <children>
                   <VBox alignment="CENTER" prefHeight="741.0" prefWidth="545.0" spacing="80.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Label alignment="CENTER" contentDisplay="CENTER" text="Donkey Kong Cloned" textAlignment="CENTER">
+                        <Label fx:id="headerLabel" alignment="CENTER" contentDisplay="CENTER" text="Donkey Kong Cloned" textAlignment="CENTER">
                            <font>
                               <Font name="Algerian" size="29.0" />
                            </font>
                         </Label>
-                        <VBox alignment="CENTER" prefHeight="60.0" prefWidth="545.0">
+                        <VBox alignment="CENTER" prefHeight="60.0" prefWidth="545.0" spacing="10.0">
                            <children>
                               <Label text="Enter your name here:" />
-                              <TextField maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="150.0" />
+                              <TextField fx:id="playerNameField" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="150.0" text="Anonymous" />
                            </children>
                         </VBox>
                         <Button fx:id="newGameButton" mnemonicParsing="false" onAction="#startGame" text="New Game" />
-                        <Button mnemonicParsing="false" text="High Score" />
+                        <Button mnemonicParsing="false" onAction="#showScoreBoard" text="High Score" />
                         <Button fx:id="quitGameButton" mnemonicParsing="false" onAction="#quitGame" text="Quit Game" />
                      </children>
                      <padding>

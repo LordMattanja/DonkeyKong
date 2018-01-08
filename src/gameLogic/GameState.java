@@ -13,11 +13,14 @@ import objects.MovingGameObject;
 import objects.Platform;
 import objects.Player;
 import objects.StaticGameObject;
+import utils.Game;
 import utils.Settings;
+import utils.XMLFileWriter;
 
 public class GameState {
 	
 	private Player player;
+	private String playerName;
 	private int score, level;
 	private ArrayList<MovingGameObject> movingGameObjects;
 	private ArrayList<StaticGameObject> staticGameObjects;
@@ -26,6 +29,10 @@ public class GameState {
 	private ArrayList<Ladder> ladders;
 	private MainApplication main;
 	private boolean gameActive = false, controlsEnabled = false;
+	
+	public void setPlayerName(String name) {
+		playerName = name;
+	}
 	
 	public int getScore() {
 		return score;
@@ -101,9 +108,9 @@ public class GameState {
 			addLadder(platform.getLadders());
 		}
 		platform = new Platform(-5.0, Settings.playerStartingPosY+.01, Settings.platformLength, true, 0, 1);
-		platforms.add(platform);		
+		platforms.add(platform);	
+		staticGameObjects.add(platform);	
 		addLadder(platform.getLadders());
-		staticGameObjects.add(platform);
 		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY, this);
 		movingGameObjects.add(player);
 	}
@@ -255,6 +262,13 @@ public class GameState {
 		main.getContrLevel().paintObject(barrel);
 	}
 	
+	public void addToScore(int timeBonus) {
+		score += 1000;
+		score += level*100;
+		score += timeBonus;
+		score += player.getHealthProperty().intValue()*200;
+	}
+	
 	public synchronized void endGame(boolean gameover){
 		gameActive = false;
 		controlsEnabled = false;
@@ -273,6 +287,7 @@ public class GameState {
 		if(!gameover){
 			main.startAgain(true);
 		} else {
+			XMLFileWriter.addNewGame(new Game(playerName, score, level));
 			level = 0;
 			score = 0;
 		}

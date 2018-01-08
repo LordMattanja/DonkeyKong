@@ -1,0 +1,22 @@
+@font-face{
+	src: url('upheavtt.ttf');
+}
+
+.root{
+	-fx-background-image: url("../../brickwall.png");
+	-fx-background-size: 40%;
+}
+
+.button {
+	-fx-font-size: 14;
+	-fx-text-fill: yellow;
+	-fx-font-family: "Upheaval TT -BRK-";
+	-fx-background-image: url("../../singleBrick.png");
+	-fx-background-size: 100% 100%;
+}
+
+#headerLabel{
+	-fx-font-size: 36;
+	-fx-text-fill: yellow;
+	-fx-font-family: "Upheaval TT -BRK-";
+}

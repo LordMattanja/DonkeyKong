@@ -9,6 +9,7 @@ import com.sun.media.jfxmedia.events.PlayerStateEvent;
 import gameLogic.GameState;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.IntegerProperty;
@@ -20,6 +21,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.print.PageLayout;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
@@ -94,7 +96,7 @@ public class LevelController implements Initializable{
 		playerHealthProperty.bind(player.getHealthProperty());
 		playerHealthLabel.textProperty().bind(playerHealthProperty.asString());
 		
-		
+			
 		movingObjects = gameState.getMovingGameObjects();
 		ArrayList<StaticGameObject> staticObjects = gameState.getStaticGameObjects();
 		
@@ -105,7 +107,20 @@ public class LevelController implements Initializable{
 			gamePane.getChildren().add(staticObjects.get(i).getPolygon());
 		}
 
+		TranslateTransition playerEnterTransition = new TranslateTransition();
+		
+		playerEnterTransition.setCycleCount(1);
+		playerEnterTransition.setDuration(Duration.seconds(3));
+		playerEnterTransition.setNode(playerPolygon);
+		playerEnterTransition.setFromX(0);
+		playerEnterTransition.setToX(0);
+		playerEnterTransition.setFromY(100);
+		playerEnterTransition.setToY(0);
+		playerEnterTransition.setOnFinished(e -> gameState.setControlsEnabled(true));
+		playerEnterTransition.play();
+
 		gamePane.getChildren().add(playerPolygon);
+		System.out.println(playerPolygon.getBoundsInParent().getMinX() + " , "+ playerPolygon.getBoundsInParent().getMinY());
 		
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 				if(event.getCode() == KeyCode.LEFT) {
@@ -166,7 +181,7 @@ public class LevelController implements Initializable{
 				}
 				verticalValue = Settings.playerStartingPosY-10;
 				path.getPoints().addAll(new Double[] { horizontalValue, verticalValue,
-						-5.0, verticalValue });
+						-20.0, verticalValue });
 				transition.setCycleCount(1);
 				transition.setDuration(Duration.seconds(32+speed));
 				transition.setInterpolator(Interpolator.EASE_OUT);
@@ -232,13 +247,13 @@ public class LevelController implements Initializable{
 		});
 	}
 	
-	public void gameOver() {
+	public void gameOver(int score) {
 		Platform.runLater(new Runnable() {			
 			@Override
 			public void run() {
 				Alert gameOverAlert = new Alert(AlertType.INFORMATION);
 				gameOverAlert.setTitle("Game Over!");
-				gameOverAlert.setContentText("Game Over \nScore: ");
+				gameOverAlert.setContentText("Game Over \nScore: " + score);
 				gameOverAlert.show();
 				main.setMenuScene();
 			}

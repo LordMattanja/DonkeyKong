@@ -15,6 +15,7 @@ public class GameThread extends Thread{
 	private final Object pauseLock = new Object();
 	private boolean paused = false;
 	private int count = 0;
+	private long startTime = 0;
 	
     public void setPaused(boolean paused) {
 		this.paused = paused;
@@ -31,9 +32,26 @@ public class GameThread extends Thread{
     	player = gameState.getPlayer();
     }
 	
+    public void startTimer() {
+    	startTime = System.currentTimeMillis();
+    }
+    
+    public int stopTimer() {
+    	return (int)(System.currentTimeMillis() - startTime)/1000;
+    }
+    
+    private int calcTimeBonus(int time) {
+    	if(30-time > 0) {
+    		return (30-time)*50;
+    	} else {
+    		return 0;
+    	}
+    }
+    
 	@Override
 	public synchronized void run() {
 		Random rand = new Random();
+		startTimer();
 		while (gameState.isGameActive()) {
 			if(count % 100 == 0){
 				gameState.addBarrel();
@@ -54,13 +72,14 @@ public class GameThread extends Thread{
 			
 			gameState.checkForPlayerBarrelCollision();
 			if(gameState.stageClear()) {
+				gameState.addToScore(calcTimeBonus(stopTimer()));
 				gameState.endGame(false);
 				paused = true;
 			}
 		
 			if(player.getHealthProperty().intValue() == 0) {
+				main.getContrLevel().gameOver(gameState.getScore());
 				gameState.endGame(true);
-				main.getContrLevel().gameOver();
 				paused = true;
 			}
 			synchronized (pauseLock) {
@@ -93,7 +112,8 @@ public class GameThread extends Thread{
 	public void resumeThread() {
 		synchronized (pauseLock) {
 			paused = false;
-			count = 0;
+			count = -1;
+			startTimer();
 			pauseLock.notifyAll();
 		}
 	}
