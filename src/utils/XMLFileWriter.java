@@ -16,6 +16,11 @@ public class XMLFileWriter {
 	private static Document document;
 	private static Element root;
 
+	
+	/**
+	 * 
+	 * @author jsobbe
+	 */
 	public static void createNewFile() {
 		root = new Element("Games");
 		document = new Document(root);
@@ -30,6 +35,7 @@ public class XMLFileWriter {
 		gameEle.setAttribute("level", ""+game.getLevel());
 		gameEle.setAttribute("score", ""+game.getScore());
 		root.addContent(gameEle);
+		writeFile();
 	}
 	
 	public static ArrayList<Game> readFile() {
@@ -62,7 +68,6 @@ public class XMLFileWriter {
 		if (document != null) {
 			try {
 				XMLOutputter out = new XMLOutputter();
-				out.output(document, System.out);
 				File f = new File("games.xml");
 				FileWriter writer = new FileWriter(f);
 				out.output(document, writer);

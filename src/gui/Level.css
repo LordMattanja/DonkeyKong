@@ -20,7 +20,19 @@
 }
 
 .label{
-	-fx-font-size: 18;
+	-fx-font-size: 25;
 	-fx-text-fill: yellow;
 	-fx-font-family: "Upheaval TT -BRK-";
+}
+
+.polygon{
+	-fx-stroke-width: 1;
+	-fx-stroke: black;
+	-fx-stroke-line-cap: round;
+}
+
+.goal{
+	-fx-fill: radial-gradient(white, blue, green) ;
+	-fx-stroke-width: 3;
+	-fx-stroke: rgb(108,70,36);
 }

@@ -7,7 +7,7 @@ public class Settings {
 	public static final double playerHeight = 30.0;
 	public static final double playerWidth = 20.0;
 	
-	public static final double barrelStartingPosX = 15.0;
+	public static final double barrelStartingPosX = 10.0;
 	public static final double barrelStartingPosY = 80.0;
 	public static final double barrelSize = 20.0;
 	

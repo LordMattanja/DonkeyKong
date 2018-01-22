@@ -1,20 +1,21 @@
 package objects;
 
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
+import utils.ImageLoader;
 
 public class Ladder extends StaticGameObject {
 	
 	private Platform platformBelow, platformAbove;
 	private double hPos, vPos, height;
 	private boolean collision;
-	private Polygon polygon;
+	private Shape rect;
+	private Image img = ImageLoader.getLadderImage();
 	
-
-	
-	public Polygon getPolygon() {
-		return polygon;
-	}
 
 	public double getHeight() {
 		return height;
@@ -24,9 +25,8 @@ public class Ladder extends StaticGameObject {
 		this.hPos = hPos;
 		this.vPos = vPos;
 		this.height = height;
-		polygon = new Polygon();
-		polygon.setFill(Color.BROWN);
-		polygon.getPoints().setAll(new Double[]{hPos, vPos, hPos+25, vPos, hPos+25, vPos+height+2, hPos, vPos+height+2});
+		rect = new Rectangle(hPos, vPos, 25, height);
+		rect.setFill(new ImagePattern(img));
 	}
 
 	@Override
@@ -38,6 +38,11 @@ public class Ladder extends StaticGameObject {
 	@Override
 	public double getvPos() {
 		return vPos;
+	}
+
+	@Override
+	public Shape getShape() {
+		return rect;
 	}
 
 	

@@ -29,6 +29,7 @@ public class GameState {
 	private ArrayList<Ladder> ladders;
 	private MainApplication main;
 	private boolean gameActive = false, controlsEnabled = false;
+	private int playerHealth = 3;
 	
 	public void setPlayerName(String name) {
 		playerName = name;
@@ -107,19 +108,19 @@ public class GameState {
 			staticGameObjects.add(platforms.get(i));
 			addLadder(platform.getLadders());
 		}
-		platform = new Platform(-5.0, Settings.playerStartingPosY+.01, Settings.platformLength, true, 0, 1);
+		platform = new Platform(-5.0, Settings.playerStartingPosY+2.01, Settings.platformLength, true, 0, 1);
 		platforms.add(platform);	
 		staticGameObjects.add(platform);	
 		addLadder(platform.getLadders());
-		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY, this);
+		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY, this, playerHealth);
 		movingGameObjects.add(player);
 	}
 
 	public synchronized boolean checkForObjectCollision(GameObject obj){
 		if(obj == player && player.isClimbing()) return false;
 		for(Platform platform : platforms){
-			if(platform.getPolygon().getBoundsInParent().intersects(player.getPolygon().getBoundsInParent())) {
-				Shape intersecting = Shape.intersect((Shape)obj.getPolygon(), (Shape)platform.getPolygon());
+			if(platform.getShape().getBoundsInParent().intersects(player.getShape().getBoundsInParent())) {
+				Shape intersecting = Shape.intersect((Shape)obj.getShape(), (Shape)platform.getShape());
 				if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
 					return true;
 				}
@@ -132,11 +133,11 @@ public class GameState {
 		double x = player.gethPos(), y = player.getvPos();
 		for(StaticGameObject object : staticGameObjects) {
 			if(object.getClass().equals(Goal.class)) {
-				if(object.getPolygon().getBoundsInLocal().getMinY() - y > 30) continue;
+				if(object.getShape().getBoundsInLocal().getMinY() - y > 30) continue;
 				for(int i = 0; i < 2; i++) {
 					x = player.gethPos();
 					for(int j = 0; j < 2; j++) {
-						if(!object.getPolygon().contains(x, y)){
+						if(!object.getShape().contains(x, y)){
 						  return false;
 						}
 						x = player.gethPos() + 20;
@@ -152,9 +153,8 @@ public class GameState {
 	public synchronized boolean checkForPolygonCollision(Polygon poly){
 		if(poly.getPoints().isEmpty()) return false;
 		for(Platform platform : platforms){
-			if(platform.getPolygon().getBoundsInParent().intersects(player.getPolygon().getBoundsInParent())) {
-				if(platform.getPolygon().getPoints().isEmpty()) return false;
-				Shape intersecting = Shape.intersect((Shape)poly, (Shape)platform.getPolygon());
+			if(platform.getShape().getBoundsInParent().intersects(player.getShape().getBoundsInParent())) {
+				Shape intersecting = Shape.intersect((Shape)poly, (Shape)platform.getShape());
 				if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
 					return true;
 				}
@@ -166,12 +166,12 @@ public class GameState {
 	public synchronized Platform getCollidingPlatform(){
 		double x = player.gethPos(), y = player.getvPos();
 		for(Platform platform : platforms){
-//				if(platform.getPolygon().getPoints().isEmpty()) return null;
-				if(platform.getPolygon().getBoundsInLocal().getMinY() - y > 30) continue;
+//				if(platform.getShape().getPoints().isEmpty()) return null;
+				if(platform.getShape().getBoundsInLocal().getMinY() - y > 30) continue;
 				for(int i = 0; i < 2; i++) {
 					x = player.gethPos();
 					for(int j = 0; j < 2; j++) {
-						if(platform.getPolygon().contains(x, y)){
+						if(platform.getShape().contains(x, y)){
 						  return platform;
 						}
 						x = player.gethPos() + 20;
@@ -185,8 +185,8 @@ public class GameState {
 	
 	public synchronized boolean checkForPlayerBarrelCollision(){
 		for (Barrel barrel : barrels) {
-			if(barrel.getPolygon().getBoundsInParent().getMinY() - player.getvPos() > 45)continue;
-				Shape intersectingShape = Polygon.intersect((Shape)player.getPolygon(), (Shape)barrel.getPolygon());
+			if(barrel.getShape().getBoundsInParent().getMinY() - player.getvPos() > 45)continue;
+				Shape intersectingShape = Polygon.intersect((Shape)player.getShape(), (Shape)barrel.getShape());
 				if(intersectingShape.getBoundsInParent().getHeight() > 0 && intersectingShape.getBoundsInParent().getWidth() > 0){
 					main.getContrLevel().removeObject(barrel);
 					barrels.remove(barrel);
@@ -200,9 +200,9 @@ public class GameState {
 	
 	public synchronized boolean canClimb() {
 		for (Ladder ladder : ladders) {
-			if (ladder.getPolygon().getBoundsInParent().getMinY() - player.getvPos() > 120)
+			if (ladder.getShape().getBoundsInParent().getMinY() - player.getvPos() > 120)
 				continue;
-			Shape intersecting = Shape.intersect((Shape) player.getPolygon(), (Shape) ladder.getPolygon());
+			Shape intersecting = Shape.intersect((Shape) player.getShape(), (Shape) ladder.getShape());
 			if (intersecting.getBoundsInParent().getWidth() > 15 && intersecting.getBoundsInParent().getHeight() > 1
 					/*&& (player.getvPos() <= ladder.getvPos() + ladder.getHeight())*/) {
 				return true;
@@ -213,9 +213,9 @@ public class GameState {
 
 	public synchronized Ladder getLadderPlayerIsUsing() {
 		for (Ladder ladder : ladders) {
-			if (ladder.getPolygon().getBoundsInParent().getMinY() - player.getvPos() > 120)
+			if (ladder.getShape().getBoundsInParent().getMinY() - player.getvPos() > 120)
 				continue;
-			Shape intersecting = Shape.intersect((Shape) player.getPolygon(), (Shape) ladder.getPolygon());
+			Shape intersecting = Shape.intersect((Shape) player.getShape(), (Shape) ladder.getShape());
 			if (intersecting.getBoundsInParent().getWidth() > 15 && intersecting.getBoundsInParent().getHeight() > 1
 					&& (player.getvPos() <= ladder.getvPos() + ladder.getHeight())) {
 				return ladder;
@@ -227,11 +227,11 @@ public class GameState {
 	public synchronized boolean playerPlatformCollision() {
 		double x = player.gethPos(), y = player.getvPos();
 		for(Platform platform : platforms) {
-			if(platform.getPolygon().getBoundsInLocal().getMinY() - y > 30) continue;
+			if(platform.getShape().getBoundsInLocal().getMinY() - y > 30) continue;
 			for(int i = 0; i < 2; i++) {
 				x = player.gethPos();
 				for(int j = 0; j < 2; j++) {
-					if(platform.getPolygon().contains(x, y)){
+					if(platform.getShape().contains(x, y)){
 					  return true;
 					}
 					x = player.gethPos() + 20;
@@ -283,6 +283,7 @@ public class GameState {
 		staticGameObjects.clear();
 		barrels.clear();
 		platforms.clear();
+		playerHealth = player.getHealthProperty().getValue().intValue();
 		player = null;
 		if(!gameover){
 			main.startAgain(true);

@@ -5,14 +5,18 @@ import gameLogic.GameState;
 import gui.MainApplication;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
+import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Shape;
 import javafx.util.Duration;
+import utils.ImageLoader;
 import utils.Settings;
 
 public class Barrel extends MovingGameObject{
@@ -20,26 +24,25 @@ public class Barrel extends MovingGameObject{
 	private double hPos, vPos;
 	int translate;
 	private boolean collision, rolling = false;
-	private Polygon polygon;
+	private Shape shape;;
 	private GameState gameState;
-	private PathTransition transition;
-	private Image img = new Image(this.getClass().getResource("Smiley2.png").toExternalForm());
+	private TranslateTransition transition;
+	private Image img = ImageLoader.getBarrelImage();
 
 	public Barrel(double hPos, double vPos, boolean ingame, double size, int speed) {
 		this.hPos = hPos;
 		this.vPos = vPos;
-		this.polygon = new Polygon();
-		this.polygon.setFill(new ImagePattern(img));
-		this.polygon.getPoints().setAll(new Double[]{ hPos, vPos, hPos+size, vPos, hPos + size, vPos-size, hPos, vPos-size });
+		this.shape = new Circle(hPos, vPos, size/2);
+		this.shape.setFill(new ImagePattern(img));
 		if(ingame) {
-			MainApplication.getMain().getContrLevel().createBarrelPath(this, speed);
+			MainApplication.getMain().getContrLevel().createNewBarrelPath(this, speed, true);
 		}
 	}
 
 
 	@Override
-	public Polygon getPolygon() {
-		return polygon;
+	public Shape getShape() {
+		return shape;
 	}
 
 
@@ -71,7 +74,7 @@ public class Barrel extends MovingGameObject{
 		this.vPos = vPos;
 	}
 	
-	public void setTransition(PathTransition transition) {
+	public void setTransition(TranslateTransition transition) {
 		this.transition = transition;
 	}
 

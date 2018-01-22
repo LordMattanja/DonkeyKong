@@ -4,9 +4,13 @@ import java.util.Random;
 
 import gui.MainApplication;
 import javafx.geometry.HPos;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Shape;
 import sun.applet.Main;
+import utils.ImageLoader;
 import utils.Settings;
 
 public class Platform extends StaticGameObject{
@@ -16,12 +20,14 @@ public class Platform extends StaticGameObject{
 	private boolean collision;
 	private Polygon polygon;
 	private Ladder[] ladders;
+	private Image img = ImageLoader.getPlatformImage();
 
 	public int getTilt() {
 		return tilt;
 	}
 	
-	public Polygon getPolygon() {
+	@Override
+	public Shape getShape() {
 		return polygon;
 	}
 
@@ -34,7 +40,9 @@ public class Platform extends StaticGameObject{
 		this.hPos = hPos;
 		this.height = Settings.platformHeight;
 		polygon = new Polygon();
-		polygon.setFill(Color.BURLYWOOD);
+		ImagePattern pattern = (tilt != 0)?new ImagePattern(img, 0, 0, .2, 2, true):new ImagePattern(img, 0, 0, .2, 3.5, true);
+		polygon.getStyleClass().add("polygon");
+		polygon.setFill(pattern);
 		this.tilt = tilt;
 		polygon.getPoints().setAll(new Double[]{hPos, vPos+tilt, hPos+length, vPos-tilt, hPos+length, vPos+23-tilt, hPos, vPos+23+tilt});
 		Random rand = new Random();
@@ -69,5 +77,6 @@ public class Platform extends StaticGameObject{
 	public double getHeight() {
 		return height;
 	}
+
 
 }

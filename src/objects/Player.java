@@ -8,6 +8,8 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import sun.applet.Main;
 import utils.Settings;
 
@@ -17,7 +19,7 @@ public class Player extends MovingGameObject {
 	private int health;
 	private IntegerProperty healthProperty;
 	private boolean collision, isPressedKeyRight = false, isPressedKeyLeft = false, isPressedKeyUp = false, isPressedKeyDown = false, grounded = false, isClimbing = false, canClimb = false;
-	private Polygon polygon;
+	private Rectangle rect;
 	private GameState gameState;
 
 	public IntegerProperty getHealthProperty() {
@@ -70,8 +72,8 @@ public class Player extends MovingGameObject {
 		this.isPressedKeyDown = isPressedKeyDown;
 	}
 
-	public Polygon getPolygon() {
-		return this.polygon;
+	public Shape getShape() {
+		return this.rect;
 	}
 	
 	public boolean isGrounded() {
@@ -128,14 +130,13 @@ public class Player extends MovingGameObject {
 		return vSpeed;
 	}
 	
-	public Player(double hPosition, double vPosition, GameState gs) {
+	public Player(double hPosition, double vPosition, GameState gs, int health) {
 		gameState = gs;
 		this.hPos = hPosition;
 		this.vPos = vPosition;
-		this.polygon = new Polygon();
-		this.healthProperty = new SimpleIntegerProperty(3);
-		polygon.setFill(Color.STEELBLUE);
-		polygon.getPoints().setAll(new Double[]{hPos, vPos, hPos, vPos-30, hPos+20, vPos-30, hPos+20, vPos});
+		this.rect = new Rectangle(hPos, vPos-30, 20, 30);
+		this.healthProperty = new SimpleIntegerProperty(health);
+		rect.setFill(Color.STEELBLUE);
 		System.out.println("New PLayer: , hPos : "+ hPos + " vPos: "+ vPos);
 	}
 
@@ -192,7 +193,7 @@ public class Player extends MovingGameObject {
 
 			@Override
 			public void run() {
-				 polygon.setTranslateY(vPos-Settings.playerStartingPosY);
+				 rect.setTranslateY(vPos-Settings.playerStartingPosY);
 			}
 			 
 		 });
@@ -261,8 +262,8 @@ public class Player extends MovingGameObject {
 
 				@Override
 				public void run() {
-					 polygon.setTranslateX(hPos-Settings.playerStartingPosX);
-					 polygon.setTranslateY(vPos-Settings.playerStartingPosY);
+					 rect.setTranslateX(hPos-Settings.playerStartingPosX);
+					 rect.setTranslateY(vPos-Settings.playerStartingPosY);
 				}
 				 
 			 });
@@ -302,7 +303,7 @@ public class Player extends MovingGameObject {
 			Platform platform = gameState.getCollidingPlatform();
 			if(horizontal) {
 				hPos -= moveDistance;
-				if(platform != null && platform.getTilt() != 0 && vPos-Settings.playerHeight < platform.getPolygon().getBoundsInParent().getMinY()) {
+				if(platform != null && platform.getTilt() != 0 && vPos-Settings.playerHeight < platform.getShape().getBoundsInParent().getMinY()) {
 					vPos -= Math.abs(((double)platform.getTilt())/Settings.tiltedPlatformLength/2*moveDistance);
 					hPos += moveDistance;
 					checkAndResolveCollision(moveDistance, horizontal);
@@ -333,23 +334,5 @@ public class Player extends MovingGameObject {
 		});		
 	}
 
-//	@Override
-//	public void run() {
-//		while (healthProperty.intValue() > 0){
-//			if(gamestate.playerBarrelCollision()){
-//				healthProperty.setValue(healthProperty.intValue()-1);
-//				System.out.println("Health : " + healthProperty.intValue());
-//			}
-//			try {
-//				Thread.sleep(33);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-//		if(healthProperty.intValue() <= 0){
-//			gamestate.endGame();
-//		}
-//	}
 
 }

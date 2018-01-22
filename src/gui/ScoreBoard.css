@@ -3,7 +3,7 @@
 }
 
 .root{
-	-fx-background-image: url("../../brickwall.png");
+	-fx-background-image: url("../utils/resources/brickwall.png");
 	-fx-background-size: 40%;
 }
 
@@ -11,12 +11,16 @@
 	-fx-font-size: 14;
 	-fx-text-fill: yellow;
 	-fx-font-family: "Upheaval TT -BRK-";
-	-fx-background-image: url("../../singleBrick.png");
+	-fx-background-image: url("../utils/resources/singleBrick.png");
 	-fx-background-size: 100% 100%;
 }
 
 #headerLabel{
 	-fx-font-size: 36;
+}
+
+.label{
+	-fx-font-size: 25;
 	-fx-text-fill: yellow;
 	-fx-font-family: "Upheaval TT -BRK-";
 }

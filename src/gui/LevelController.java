@@ -9,6 +9,7 @@ import com.sun.media.jfxmedia.events.PlayerStateEvent;
 import gameLogic.GameState;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
+import javafx.animation.RotateTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -26,6 +27,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -33,6 +35,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Shape;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import objects.Barrel;
@@ -48,7 +51,7 @@ public class LevelController implements Initializable{
 	private MainApplication main;
 	private GameState gameState;
 	private Player player;
-	private Polygon playerPolygon;
+	private Shape playerPolygon;
 	@FXML
 	private AnchorPane gamePane;
 	private Stage window;
@@ -92,7 +95,7 @@ public class LevelController implements Initializable{
 		
 		levelLabel.setText("Level: " + main.getGamestate().getLevel());
 		
-		playerPolygon = player.getPolygon();
+		playerPolygon = player.getShape();
 		playerHealthProperty.bind(player.getHealthProperty());
 		playerHealthLabel.textProperty().bind(playerHealthProperty.asString());
 		
@@ -101,10 +104,10 @@ public class LevelController implements Initializable{
 		ArrayList<StaticGameObject> staticObjects = gameState.getStaticGameObjects();
 		
 //		for(int i = 0; i < movingObjects.size(); i++){
-//			gamePane.getChildren().add(movingObjects.get(i).getPolygon());
+//			gamePane.getChildren().add(movingObjects.get(i).getShape());
 //		}		
 		for (int i = 0; i < staticObjects.size(); i++){
-			gamePane.getChildren().add(staticObjects.get(i).getPolygon());
+			gamePane.getChildren().add(staticObjects.get(i).getShape());
 		}
 
 		TranslateTransition playerEnterTransition = new TranslateTransition();
@@ -130,7 +133,7 @@ public class LevelController implements Initializable{
 				}
 				if(event.getCode() == KeyCode.SPACE) {
 					if(player.isGrounded() || player.isClimbing()){
-					  player.setVSpeed(-8.5);
+					  player.setVSpeed(-9.0);
 					  player.setClimbing(false);
 					}
 				}	
@@ -157,46 +160,52 @@ public class LevelController implements Initializable{
 		});
 	}
 	
-	public void createBarrelPath(Barrel barrel, int speed) {
+	public void createNewBarrelPath(Barrel barrel, int speed, boolean rolling) {
 		Platform.runLater(new Runnable() {
 
 			@Override
 			public void run() {
-				PathTransition transition = new PathTransition();
-				Polyline path = new Polyline();
-				double verticalValue = barrel.getvPos();
-				double horizontalValue = barrel.gethPos();
-				for (int i = 0; i < Settings.numberOfPlatforms * 2; i++) {
-					Double[] array = new Double[] { horizontalValue, verticalValue, };
-					if (i % 4 == 0) {
-						horizontalValue += Settings.tiltedPlatformLength;
-						verticalValue += 20;
-					} else if (i % 2 != 0) {
-						verticalValue += 500 / Settings.numberOfPlatforms - 20;
-					} else if (i % 2 == 0) {
-						horizontalValue -= Settings.tiltedPlatformLength;
-						verticalValue += 20;
-					}
-					path.getPoints().addAll(array);
+				createNextBarrelPath(barrel, speed, rolling);
+			}
+		}
+		);
+	}
+	
+	private synchronized void createNextBarrelPath(Barrel barrel, int speed, boolean rolling) {
+				TranslateTransition transition = new TranslateTransition();
+				RotateTransition rotate = new RotateTransition();
+				if(rolling) {
+					rotate = new RotateTransition(Duration.seconds(1), barrel.getShape());
+					rotate.setByAngle((barrel.getShape().getTranslateX()<Settings.sceneWidth/2)?360 : -360);
+					rotate.setCycleCount(RotateTransition.INDEFINITE);
+					rotate.setInterpolator(Interpolator.LINEAR);
+					rotate.play();
+					transition.setDuration(Duration.seconds(5+speed/10.0));
+					transition.setByY(20);
+					transition.setByX((barrel.getShape().getTranslateX()<Settings.sceneWidth/2)?Settings.tiltedPlatformLength : -Settings.tiltedPlatformLength);
+				} else {
+					transition.setDuration(Duration.seconds(.8+speed/15.0));
+					transition.setByY(500 / Settings.numberOfPlatforms - 20);
 				}
-				verticalValue = Settings.playerStartingPosY-10;
-				path.getPoints().addAll(new Double[] { horizontalValue, verticalValue,
-						-20.0, verticalValue });
+				final RotateTransition rotateFinal = rotate;
 				transition.setCycleCount(1);
-				transition.setDuration(Duration.seconds(32+speed));
-				transition.setInterpolator(Interpolator.EASE_OUT);
-				transition.setNode(barrel.getPolygon());
-				transition.setPath(path);
+				transition.setInterpolator(Interpolator.LINEAR);
+				transition.setNode(barrel.getShape());
 				transition.setOnFinished(new EventHandler<ActionEvent>() {
 					@Override
 					public void handle(ActionEvent event) {
-						MainApplication.getMain().getContrLevel().removeObject(barrel);
+						if(barrel.getShape().computeAreaInScreen() < 0) {
+							MainApplication.getMain().getContrLevel().removeObject(barrel);
+						} else {
+							if(rolling) {
+								rotateFinal.stop();
+							}
+							createNextBarrelPath(barrel, speed, !rolling);
+						}
 					}
 				});
 				transition.play();
 				barrel.setTransition(transition);
-			}
-		});
 	}
 	
 //	public synchronized void repaint(){
@@ -209,9 +218,9 @@ public class LevelController implements Initializable{
 //				  gamePane.getChildren().remove(playerPolygon);
 //				  gamePane.getChildren().add(playerPolygon);	
 //				  for(int i = 0; i < movingObjects.size(); i++){
-//					  if(movingObjects.get(i).getPolygon() != null){
-//						  gamePane.getChildren().remove(movingObjects.get(i).getPolygon());
-//					      gamePane.getChildren().add(movingObjects.get(i).getPolygon());				
+//					  if(movingObjects.get(i).getShape() != null){
+//						  gamePane.getChildren().remove(movingObjects.get(i).getShape());
+//					      gamePane.getChildren().add(movingObjects.get(i).getShape());				
 //					  }
 //				  }
 //				}
@@ -227,11 +236,11 @@ public class LevelController implements Initializable{
 //	}
 	
 	public void paintObject(GameObject obj) {
-		if (obj != null && obj.getPolygon() != null) {
+		if (obj != null && obj.getShape() != null) {
 			Platform.runLater(new Runnable() {
 				@Override
 				public void run() {
-					gamePane.getChildren().add(obj.getPolygon());
+					gamePane.getChildren().add(obj.getShape());
 				}
 
 			});
@@ -242,7 +251,7 @@ public class LevelController implements Initializable{
 		Platform.runLater(new Runnable(){
 			@Override
 			public void run() {
-				gamePane.getChildren().remove(obj.getPolygon());
+				gamePane.getChildren().remove(obj.getShape());
 			}
 		});
 	}

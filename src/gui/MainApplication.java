@@ -37,6 +37,7 @@ public class MainApplication extends Application{
 	public LevelController getContrLevel() {
 		return contrLevel;
 	}
+	
 	public ScoreBoardController getContrScore() {
 		return contrScore;
 	}
@@ -69,6 +70,7 @@ public class MainApplication extends Application{
 		scoreLoader = new FXMLLoader(getClass().getResource("ScoreBoard.fxml"));
 		try {
 			rootLevel = (Pane)levelLoader.load();
+			rootLevel.getStylesheets().add(getClass().getResource("Level.css").toExternalForm());
 			rootMenu = (Pane)menuLoader.load();
 			rootMenu.getStylesheets().add(getClass().getResource("Menu.css").toExternalForm());
 			rootScore = (Pane)scoreLoader.load();
@@ -99,6 +101,7 @@ public class MainApplication extends Application{
 		window.show();
 		window.setOnCloseRequest(e -> {
 			XMLFileWriter.writeFile();
+			XMLFileWriter.updateDocument();
 		});
 		
 	}

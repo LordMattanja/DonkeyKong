@@ -3,11 +3,13 @@ package objects;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 
 public class Goal extends StaticGameObject {
 	
 	private double hPos, vPos, height;
-	private Polygon polygon;
+	private Rectangle rect;
 
 	@Override
 	public double getHeight() {
@@ -25,17 +27,16 @@ public class Goal extends StaticGameObject {
 	}
 
 	@Override
-	public Polygon getPolygon() {
-		return polygon;
+	public Shape getShape() {
+		return rect;
 	}
 	
 	public Goal() {
 		vPos = 55;
 		hPos = 80;
 		height = 40;
-		polygon = new Polygon();
-		this.polygon.setFill(Color.DARKGREEN);
-		this.polygon.getPoints().setAll(new Double[]{ hPos, vPos, hPos+30, vPos, hPos+30, vPos + height, hPos, vPos+height});
+		rect = new Rectangle(hPos, vPos, 30, height);
+		rect.getStyleClass().add("goal");
 	}
 
 }

@@ -44,7 +44,7 @@ public class MenuController implements Initializable{
 		transition.setCycleCount(1);
 		transition.setDuration(Duration.seconds(4));
 		transition.setInterpolator(Interpolator.EASE_OUT);
-		transition.setNode(backgroundBarrel.getPolygon());
+		transition.setNode(backgroundBarrel.getShape());
 		transition.setFromX(0);
 		transition.setToX(0);
 		transition.setFromY(0);
@@ -56,7 +56,7 @@ public class MenuController implements Initializable{
 	    	transition.play();
 	    });
 		transition.play();
-		backgroundPane.getChildren().add(backgroundBarrel.getPolygon());
+		backgroundPane.getChildren().add(backgroundBarrel.getShape());
 		
 	}
 	
