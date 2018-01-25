@@ -2,48 +2,29 @@ package gui;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.ResourceBundle;
-
-import com.sun.media.jfxmedia.events.PlayerStateEvent;
-
-import gameLogic.GameState;
+import game.GameState;
 import javafx.animation.Interpolator;
-import javafx.animation.PathTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.print.PageLayout;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Polyline;
-import javafx.scene.shape.Shape;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import objects.Barrel;
 import objects.GameObject;
 import objects.Ladder;
-import objects.MovingGameObject;
 import objects.Player;
-import objects.StaticGameObject;
 import utils.Settings;
 
 public class LevelController implements Initializable{
@@ -51,12 +32,9 @@ public class LevelController implements Initializable{
 	private MainApplication main;
 	private GameState gameState;
 	private Player player;
-	private Shape playerPolygon;
 	@FXML
 	private AnchorPane gamePane;
-	private Stage window;
 	private Scene scene;
-	private ArrayList<MovingGameObject> movingObjects;
 	private IntegerProperty playerHealthProperty = new SimpleIntegerProperty();
 	@FXML 
 	private Label playerHealthLabel;
@@ -75,11 +53,7 @@ public class LevelController implements Initializable{
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
-		window = main.getWindow();
 		gameState = main.getGamestate();
-		
-		
 	}
 	
 	public LevelController () {
@@ -95,13 +69,10 @@ public class LevelController implements Initializable{
 		
 		levelLabel.setText("Level: " + main.getGamestate().getLevel());
 		
-		playerPolygon = player.getShape();
 		playerHealthProperty.bind(player.getHealthProperty());
 		playerHealthLabel.textProperty().bind(playerHealthProperty.asString());
 		
-			
-		movingObjects = gameState.getMovingGameObjects();
-		ArrayList<StaticGameObject> staticObjects = gameState.getStaticGameObjects();
+		ArrayList<GameObject> staticObjects = gameState.getGameObjects();
 		
 //		for(int i = 0; i < movingObjects.size(); i++){
 //			gamePane.getChildren().add(movingObjects.get(i).getShape());
@@ -114,16 +85,13 @@ public class LevelController implements Initializable{
 		
 		playerEnterTransition.setCycleCount(1);
 		playerEnterTransition.setDuration(Duration.seconds(3));
-		playerEnterTransition.setNode(playerPolygon);
+		playerEnterTransition.setNode(player.getShape());
 		playerEnterTransition.setFromX(0);
 		playerEnterTransition.setToX(0);
 		playerEnterTransition.setFromY(100);
 		playerEnterTransition.setToY(0);
 		playerEnterTransition.setOnFinished(e -> gameState.setControlsEnabled(true));
 		playerEnterTransition.play();
-
-		gamePane.getChildren().add(playerPolygon);
-		System.out.println(playerPolygon.getBoundsInParent().getMinX() + " , "+ playerPolygon.getBoundsInParent().getMinY());
 		
 		scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
 				if(event.getCode() == KeyCode.LEFT) {
@@ -131,9 +99,9 @@ public class LevelController implements Initializable{
 				} else if(event.getCode() == KeyCode.RIGHT) {
 					player.setPressedKeyRight(true);
 				}
-				if(event.getCode() == KeyCode.SPACE) {
+				if(event.getCode() == KeyCode.SPACE && gameState.isGameActive() && gameState.isControlsEnabled()) {
 					if(player.isGrounded() || player.isClimbing()){
-					  player.setVSpeed(-9.0);
+					  player.setVSpeed(-8.8);
 					  player.setClimbing(false);
 					}
 				}	
@@ -165,75 +133,73 @@ public class LevelController implements Initializable{
 
 			@Override
 			public void run() {
-				createNextBarrelPath(barrel, speed, rolling);
+				createNextBarrelPath(barrel, speed, rolling, null);
 			}
 		}
 		);
 	}
 	
-	private synchronized void createNextBarrelPath(Barrel barrel, int speed, boolean rolling) {
-				TranslateTransition transition = new TranslateTransition();
-				RotateTransition rotate = new RotateTransition();
-				if(rolling) {
-					rotate = new RotateTransition(Duration.seconds(1), barrel.getShape());
-					rotate.setByAngle((barrel.getShape().getTranslateX()<Settings.sceneWidth/2)?360 : -360);
-					rotate.setCycleCount(RotateTransition.INDEFINITE);
-					rotate.setInterpolator(Interpolator.LINEAR);
-					rotate.play();
-					transition.setDuration(Duration.seconds(5+speed/10.0));
-					transition.setByY(20);
-					transition.setByX((barrel.getShape().getTranslateX()<Settings.sceneWidth/2)?Settings.tiltedPlatformLength : -Settings.tiltedPlatformLength);
+	private synchronized void createNextBarrelPath(Barrel barrel, int speed, boolean rolling, Ladder usedLadder) {
+		TranslateTransition transition = new TranslateTransition();
+		RotateTransition rotate = new RotateTransition();
+		transition.setNode(barrel.getShape());
+		transition.setFromX(barrel.getShape().getBoundsInParent().getMinX());
+		transition.setFromY(barrel.getShape().getBoundsInParent().getMaxY()- barrel.getvPos());
+		transition.setInterpolator(Interpolator.LINEAR);
+		transition.setCycleCount(1);
+		if (rolling) {
+			rotate = new RotateTransition(Duration.seconds(1), barrel.getShape());
+			rotate.setByAngle((gameState.getCurrentlyUsedPlatform(barrel) != null)? gameState.getCurrentlyUsedPlatform(barrel).getTilt()*-36 : -360);
+			rotate.setCycleCount(RotateTransition.INDEFINITE);
+			rotate.setInterpolator(Interpolator.LINEAR);
+			rotate.play();objects.Platform usedPlatform = gameState.getCurrentlyUsedPlatform(barrel);
+			if (usedPlatform != null) {
+				transition.setToX((usedPlatform.getTilt() < 0) ? 600 : 5);
+				transition.setToY((usedPlatform.getTilt() < 0) ? usedPlatform.getvPos() - barrel.getvPos() - usedPlatform.getTilt() : usedPlatform.getvPos() - barrel.getvPos() + usedPlatform.getTilt());
+				Random rand = new Random();
+				int x = rand.nextInt(5);
+				if (x < usedPlatform.getLadders().length && usedPlatform.getLadders()[x].getvPos() > barrel.getShape()
+						.getBoundsInParent().getMaxY()) {
+					usedLadder = usedPlatform.getLadders()[x];
+					transition.setToX(usedLadder.gethPos());
+					transition.setDuration(Duration
+							.seconds((5.0)* Math.abs(((transition.getFromX()-transition.getToX())/Settings.tiltedPlatformLength))));
+					transition.setToY(usedLadder.getvPos()-barrel.getvPos());
 				} else {
-					transition.setDuration(Duration.seconds(.8+speed/15.0));
-					transition.setByY(500 / Settings.numberOfPlatforms - 20);
-				}
-				final RotateTransition rotateFinal = rotate;
-				transition.setCycleCount(1);
-				transition.setInterpolator(Interpolator.LINEAR);
-				transition.setNode(barrel.getShape());
-				transition.setOnFinished(new EventHandler<ActionEvent>() {
-					@Override
-					public void handle(ActionEvent event) {
-						if(barrel.getShape().computeAreaInScreen() < 0) {
-							MainApplication.getMain().getContrLevel().removeObject(barrel);
-						} else {
-							if(rolling) {
-								rotateFinal.stop();
-							}
-							createNextBarrelPath(barrel, speed, !rolling);
-						}
+					transition.setDuration(Duration.seconds((usedLadder == null)? 5 + speed / 10.0 : (5.0)* Math.abs(((transition.getFromX()-transition.getToX())/Settings.tiltedPlatformLength))));			
+					usedLadder = null;
 					}
-				});
-				transition.play();
-				barrel.setTransition(transition);
+			} else {
+				usedLadder = null;
+				transition.setToX(-25);
+				transition.setInterpolator(Interpolator.EASE_OUT);
+				transition.setDuration(Duration.seconds(5.0));
+			}
+		} else {
+			transition.setDuration(Duration.seconds(1 + speed / 15.0));
+			if (usedLadder != null) {
+				transition.setByY(usedLadder.getHeight());
+			} else {
+				transition.setToY((barrel.getShape().getBoundsInParent().getMaxY() < Settings.playerStartingPosY - 100)
+						? transition.getFromY() + 500 / Settings.numberOfPlatforms - 20
+						: Settings.playerStartingPosY - barrel.getvPos());
+			}
+		}
+		final RotateTransition rotateFinal = rotate;
+		final Ladder finalLadder = usedLadder;
+		transition.setOnFinished(e -> {
+			if (barrel.getShape().getBoundsInParent().getMinX() < 0) {
+				MainApplication.getMain().getGamestate().removeBarrel(barrel);
+			} else {
+				if (rolling) {
+					rotateFinal.stop();
+				}
+				createNextBarrelPath(barrel, speed, !rolling, finalLadder);
+			}
+		});
+		transition.play();
+		barrel.setTransition(transition);
 	}
-	
-//	public synchronized void repaint(){
-////		System.out.println("repaintinG?");
-//		Platform.runLater(new Runnable(){
-//			@Override
-//			public void run() {
-//				while(main.isGameActive()){
-//				  movingObjects = gameState.getMovingGameObjects();
-//				  gamePane.getChildren().remove(playerPolygon);
-//				  gamePane.getChildren().add(playerPolygon);	
-//				  for(int i = 0; i < movingObjects.size(); i++){
-//					  if(movingObjects.get(i).getShape() != null){
-//						  gamePane.getChildren().remove(movingObjects.get(i).getShape());
-//					      gamePane.getChildren().add(movingObjects.get(i).getShape());				
-//					  }
-//				  }
-//				}
-//				try {
-//					Thread.sleep(33);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-//			
-//		});		
-//	}
 	
 	public void paintObject(GameObject obj) {
 		if (obj != null && obj.getShape() != null) {
@@ -242,18 +208,19 @@ public class LevelController implements Initializable{
 				public void run() {
 					gamePane.getChildren().add(obj.getShape());
 				}
-
 			});
 		}
 	}
 	
 	public void removeObject(GameObject obj) {
-		Platform.runLater(new Runnable(){
-			@Override
-			public void run() {
-				gamePane.getChildren().remove(obj.getShape());
-			}
-		});
+		if (obj != null && obj.getShape() != null) {
+			Platform.runLater(new Runnable(){
+				@Override
+				public void run() {
+					gamePane.getChildren().remove(obj.getShape());
+				}
+			});
+		}
 	}
 	
 	public void gameOver(int score) {
@@ -262,6 +229,8 @@ public class LevelController implements Initializable{
 			public void run() {
 				Alert gameOverAlert = new Alert(AlertType.INFORMATION);
 				gameOverAlert.setTitle("Game Over!");
+				gameOverAlert.setHeaderText("");
+				gameOverAlert.getDialogPane().getStylesheets().add(getClass().getResource("Menu.css").toExternalForm());
 				gameOverAlert.setContentText("Game Over \nScore: " + score);
 				gameOverAlert.show();
 				main.setMenuScene();

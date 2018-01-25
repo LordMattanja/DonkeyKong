@@ -1,4 +1,4 @@
-package gameLogic;
+package game;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -9,10 +9,8 @@ import objects.Barrel;
 import objects.GameObject;
 import objects.Goal;
 import objects.Ladder;
-import objects.MovingGameObject;
 import objects.Platform;
 import objects.Player;
-import objects.StaticGameObject;
 import utils.Game;
 import utils.Settings;
 import utils.XMLFileWriter;
@@ -22,8 +20,7 @@ public class GameState {
 	private Player player;
 	private String playerName;
 	private int score, level;
-	private ArrayList<MovingGameObject> movingGameObjects;
-	private ArrayList<StaticGameObject> staticGameObjects;
+	private ArrayList<GameObject> gameObjects;
 	private ArrayList<Platform> platforms;
 	private ArrayList<Barrel> barrels;
 	private ArrayList<Ladder> ladders;
@@ -77,20 +74,15 @@ public class GameState {
 		return ladders;
 	}
 
-	public ArrayList<StaticGameObject> getStaticGameObjects() {
-		return staticGameObjects;
-	}
-	public ArrayList<MovingGameObject> getMovingGameObjects() {
-		return movingGameObjects;
-	}
-	
+	public ArrayList<GameObject> getGameObjects() {
+		return gameObjects;
+	}	
 	
 	public GameState() {
 		main = MainApplication.getMain();
 		score = 0;
 		level = 0;
-		movingGameObjects = new ArrayList<>();
-		staticGameObjects = new ArrayList<>();
+		gameObjects = new ArrayList<>();
 		platforms = new ArrayList<Platform>();
 		ladders = new ArrayList<Ladder>();
 		barrels = new ArrayList<Barrel>();
@@ -100,20 +92,20 @@ public class GameState {
 		Random rand = new Random();
 		Platform platform;
 		level++;
-		staticGameObjects.add(new Goal());
+		gameObjects.add(new Goal());
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
 			int tilt = (i%2 == 0)? -10 : 10, numOfLadders = (i!=Settings.numberOfPlatforms-1)? rand.nextInt(3)+1 : 1;
 			platform = new Platform(25.0*(i%2), 500/Settings.numberOfPlatforms*i+100.0, Settings.tiltedPlatformLength, true, tilt, numOfLadders);
 			platforms.add(platform);
-			staticGameObjects.add(platforms.get(i));
+			gameObjects.add(platforms.get(i));
 			addLadder(platform.getLadders());
 		}
-		platform = new Platform(-5.0, Settings.playerStartingPosY+2.01, Settings.platformLength, true, 0, 1);
+		platform = new Platform(-5.0, Settings.playerStartingPosY+1.01, Settings.platformLength, true, 0, 1);
 		platforms.add(platform);	
-		staticGameObjects.add(platform);	
+		gameObjects.add(platform);	
 		addLadder(platform.getLadders());
 		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY, this, playerHealth);
-		movingGameObjects.add(player);
+		gameObjects.add(player);
 	}
 
 	public synchronized boolean checkForObjectCollision(GameObject obj){
@@ -131,7 +123,7 @@ public class GameState {
 	
 	public synchronized boolean stageClear() {
 		double x = player.gethPos(), y = player.getvPos();
-		for(StaticGameObject object : staticGameObjects) {
+		for(GameObject object : gameObjects) {
 			if(object.getClass().equals(Goal.class)) {
 				if(object.getShape().getBoundsInLocal().getMinY() - y > 30) continue;
 				for(int i = 0; i < 2; i++) {
@@ -166,7 +158,6 @@ public class GameState {
 	public synchronized Platform getCollidingPlatform(){
 		double x = player.gethPos(), y = player.getvPos();
 		for(Platform platform : platforms){
-//				if(platform.getShape().getPoints().isEmpty()) return null;
 				if(platform.getShape().getBoundsInLocal().getMinY() - y > 30) continue;
 				for(int i = 0; i < 2; i++) {
 					x = player.gethPos();
@@ -183,14 +174,21 @@ public class GameState {
 		return null;
 	}
 	
+	public synchronized Platform getCurrentlyUsedPlatform(GameObject obj) {
+		for(Platform platform : platforms) {
+			if(platform.getShape().getBoundsInParent().intersects(obj.getShape().getBoundsInParent())) {
+				return platform;
+			}
+		}
+		return null;
+	}
+	
 	public synchronized boolean checkForPlayerBarrelCollision(){
 		for (Barrel barrel : barrels) {
 			if(barrel.getShape().getBoundsInParent().getMinY() - player.getvPos() > 45)continue;
 				Shape intersectingShape = Polygon.intersect((Shape)player.getShape(), (Shape)barrel.getShape());
 				if(intersectingShape.getBoundsInParent().getHeight() > 0 && intersectingShape.getBoundsInParent().getWidth() > 0){
-					main.getContrLevel().removeObject(barrel);
-					barrels.remove(barrel);
-					movingGameObjects.remove(barrel);
+					removeBarrel(barrel);
 					player.updatePlayerHealth();
 					return true;
 			}
@@ -203,21 +201,25 @@ public class GameState {
 			if (ladder.getShape().getBoundsInParent().getMinY() - player.getvPos() > 120)
 				continue;
 			Shape intersecting = Shape.intersect((Shape) player.getShape(), (Shape) ladder.getShape());
-			if (intersecting.getBoundsInParent().getWidth() > 15 && intersecting.getBoundsInParent().getHeight() > 1
-					/*&& (player.getvPos() <= ladder.getvPos() + ladder.getHeight())*/) {
+			if (intersecting.getBoundsInParent().getWidth() > 15 && intersecting.getBoundsInParent().getHeight() > 1) {
+				if(!(player.getvPos() < ladder.getvPos() + ladder.getHeight())&&player.isClimbing()) {
+					player.setvPos(player.getvPos() - 3.0);
+					player.setClimbing(false);
+					return false;
+				}
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public synchronized Ladder getLadderPlayerIsUsing() {
+	public synchronized Ladder getUsedLadder(GameObject object) {
 		for (Ladder ladder : ladders) {
-			if (ladder.getShape().getBoundsInParent().getMinY() - player.getvPos() > 120)
+			if (object.equals(player) && ladder.getShape().getBoundsInParent().getMinY() - object.getvPos() > 120)
 				continue;
-			Shape intersecting = Shape.intersect((Shape) player.getShape(), (Shape) ladder.getShape());
+			Shape intersecting = Shape.intersect(object.getShape(), ladder.getShape());
 			if (intersecting.getBoundsInParent().getWidth() > 15 && intersecting.getBoundsInParent().getHeight() > 1
-					&& (player.getvPos() <= ladder.getvPos() + ladder.getHeight())) {
+					&& (object.getShape().getBoundsInParent().getMaxY() <= ladder.getvPos() + ladder.getHeight())) {
 				return ladder;
 			}
 		}
@@ -225,6 +227,7 @@ public class GameState {
 	}
 	
 	public synchronized boolean playerPlatformCollision() {
+		if(canClimb() && player.isClimbing()) return false;
 		double x = player.gethPos(), y = player.getvPos();
 		for(Platform platform : platforms) {
 			if(platform.getShape().getBoundsInLocal().getMinY() - y > 30) continue;
@@ -243,23 +246,29 @@ public class GameState {
 		return false;
 	}
 	
-	public void addLadder(Ladder[] ladders) {
+	public synchronized void addLadder(Ladder[] ladders) {
 		for(Ladder ladder : ladders) {
 			if(!this.ladders.contains(ladder)) {
 				this.ladders.add(ladder);
 			}
-			if(!staticGameObjects.contains(ladder)) {
-				staticGameObjects.add(ladder);
+			if(!gameObjects.contains(ladder)) {
+				gameObjects.add(ladder);
 			}
 		}
 	}
 	
-	protected void addBarrel(){
+	protected synchronized void addBarrel(){
 		Random rand = new Random();
 		Barrel barrel = new Barrel(Settings.barrelStartingPosX, Settings.barrelStartingPosY, true, Settings.barrelSize, rand.nextInt(3));
 		barrels.add(barrel);
-		movingGameObjects.add(barrel);
+		gameObjects.add(barrel);
 		main.getContrLevel().paintObject(barrel);
+	}
+	
+	public synchronized void removeBarrel(Barrel barrel) {
+		main.getContrLevel().removeObject(barrel);
+		barrels.remove(barrel);
+		gameObjects.remove(barrel);
 	}
 	
 	public void addToScore(int timeBonus) {
@@ -272,15 +281,11 @@ public class GameState {
 	public synchronized void endGame(boolean gameover){
 		gameActive = false;
 		controlsEnabled = false;
-		for(MovingGameObject object : movingGameObjects) {
-			main.getContrLevel().removeObject(object);
-		}
-		for(StaticGameObject object : staticGameObjects) {
+		for(GameObject object : gameObjects) {
 			main.getContrLevel().removeObject(object);
 		}
 		main.getContrLevel().removeObject(player);
-		movingGameObjects.clear();
-		staticGameObjects.clear();
+		gameObjects.clear();
 		barrels.clear();
 		platforms.clear();
 		playerHealth = player.getHealthProperty().getValue().intValue();
@@ -291,6 +296,7 @@ public class GameState {
 			XMLFileWriter.addNewGame(new Game(playerName, score, level));
 			level = 0;
 			score = 0;
+			playerHealth = 3;
 		}
 	}
 	

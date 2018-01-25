@@ -6,9 +6,9 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
-public class Goal extends StaticGameObject {
+public class Goal extends GameObject {
 	
-	private double hPos, vPos, height;
+	private double hPos, vPos, height, width;
 	private Rectangle rect;
 
 	@Override
@@ -31,12 +31,30 @@ public class Goal extends StaticGameObject {
 		return rect;
 	}
 	
+	@Override
+	public void sethPos(double hPos) {
+		this.hPos = hPos;
+	}
+
+	@Override
+	public void setvPos(double vPos) {
+		this.vPos = vPos;
+	}
+
+	@Override
+	public double getWidth() {
+		return width;
+	}
+
+	
 	public Goal() {
 		vPos = 55;
 		hPos = 80;
 		height = 40;
-		rect = new Rectangle(hPos, vPos, 30, height);
+		width = 30;
+		rect = new Rectangle(hPos, vPos, width, height);
 		rect.getStyleClass().add("goal");
 	}
 
+	
 }

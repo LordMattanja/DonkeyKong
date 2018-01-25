@@ -1,7 +1,7 @@
 package objects;
 
 import Exceptions.CollisionException;
-import gameLogic.GameState;
+import game.GameState;
 import gui.MainApplication;
 import javafx.animation.Interpolator;
 import javafx.animation.PathTransition;
@@ -19,10 +19,10 @@ import javafx.util.Duration;
 import utils.ImageLoader;
 import utils.Settings;
 
-public class Barrel extends MovingGameObject{
+public class Barrel extends GameObject{
 	
 	private double hPos, vPos;
-	int translate;
+	int translate, width, height;
 	private boolean collision, rolling = false;
 	private Shape shape;;
 	private GameState gameState;
@@ -31,7 +31,9 @@ public class Barrel extends MovingGameObject{
 
 	public Barrel(double hPos, double vPos, boolean ingame, double size, int speed) {
 		this.hPos = hPos;
-		this.vPos = vPos;
+		this.vPos = vPos + size/2;
+		this.width = (int)size;
+		this.height = (int)size;
 		this.shape = new Circle(hPos, vPos, size/2);
 		this.shape.setFill(new ImagePattern(img));
 		if(ingame) {
@@ -80,17 +82,17 @@ public class Barrel extends MovingGameObject{
 
 
 //	private void gripToPlatForm() {
-//		while(gameState.checkPolygonCollision(this.polygon)) {
+//		while(gameState.checkForPolygonCollision(this.shape)) {
 //			vPos -= .1;
-//			polygon.setTranslateY(this.vPos-Settings.barrelStartingPosY);
+//			shape.setTranslateY(this.vPos-Settings.barrelStartingPosY);
 //		}
 //	}
-
+//
 //	private synchronized void fall() throws CollisionException {
 //		this.vPos += 2;
-//		this.polygon.setTranslateY(this.vPos-Settings.barrelStartingPosY);
-//		if(gameState.checkPolygonCollision(this.polygon)){
-//			Platform collidingPlatform = gameState.getCollidingPlatform(this.polygon);
+//		this.shape.setTranslateY(this.vPos-Settings.barrelStartingPosY);
+//		if(gameState.checkPolygonCollision(this.shape)){
+//			Platform collidingPlatform = gameState.getCollidingPlatform(this.shape);
 //			if(collidingPlatform != null){
 //			  int translate = collidingPlatform.getTilt()/10;
 //			  gripToPlatForm();
@@ -98,7 +100,7 @@ public class Barrel extends MovingGameObject{
 //			}
 //		}
 //	}
-
+//
 //	private synchronized void roll() {
 //		if(hPos > 50 + Settings.tiltedPlatformLength && translate < 0 || hPos < 75 && translate > 0) {
 //			rolling = false;
@@ -107,13 +109,13 @@ public class Barrel extends MovingGameObject{
 //		this.hPos -= translate;
 //		if(translate != 0){
 //			this.vPos += (20.0/Settings.tiltedPlatformLength);
-//			this.polygon.setTranslateY(vPos-Settings.barrelStartingPosY);
+//			this.shape.setTranslateY(vPos-Settings.barrelStartingPosY);
 //		} else {
 //			hPos += 1;
 //		}
-//		this.polygon.setTranslateX(hPos-Settings.barrelStartingPosX);
+//		this.shape.setTranslateX(hPos-Settings.barrelStartingPosX);
 //	}
-
+//
 //	@Override
 //	public synchronized void run() {
 //		long threadId = Thread.currentThread().getId();
@@ -136,5 +138,17 @@ public class Barrel extends MovingGameObject{
 //			}
 //		}
 //	}
+
+
+	@Override
+	public double getHeight() {
+		return height;
+	}
+
+
+	@Override
+	public double getWidth() {
+		return width;
+	}
 
 }

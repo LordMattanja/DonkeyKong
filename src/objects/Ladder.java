@@ -8,32 +8,21 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import utils.ImageLoader;
 
-public class Ladder extends StaticGameObject {
+public class Ladder extends GameObject {
 	
-	private Platform platformBelow, platformAbove;
-	private double hPos, vPos, height;
-	private boolean collision;
+	private double hPos, vPos, width, height;
 	private Shape rect;
 	private Image img = ImageLoader.getLadderImage();
 	
-
+	@Override
 	public double getHeight() {
 		return height;
-	}
-
-	public Ladder(double hPos, double vPos, double height) {
-		this.hPos = hPos;
-		this.vPos = vPos;
-		this.height = height;
-		rect = new Rectangle(hPos, vPos, 25, height);
-		rect.setFill(new ImagePattern(img));
 	}
 
 	@Override
 	public double gethPos() {
 		return hPos;
 	}
-
 
 	@Override
 	public double getvPos() {
@@ -43,6 +32,29 @@ public class Ladder extends StaticGameObject {
 	@Override
 	public Shape getShape() {
 		return rect;
+	}
+	
+	@Override
+	public void sethPos(double hPos) {
+		this.hPos = hPos;
+	}
+
+	@Override
+	public void setvPos(double vPos) {
+		this.vPos = vPos;
+	}
+
+	@Override
+	public double getWidth() {
+		return width;
+	}
+
+	public Ladder(double hPos, double vPos, double height) {
+		this.hPos = hPos;
+		this.vPos = vPos;
+		this.height = height;
+		rect = new Rectangle(hPos, vPos, 25, (vPos > 500)? height + 10 : height);
+		rect.setFill(new ImagePattern(img));
 	}
 
 	

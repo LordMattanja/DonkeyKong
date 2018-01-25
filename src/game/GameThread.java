@@ -1,9 +1,11 @@
-package gameLogic;
+package game;
 
 import java.util.Random;
 
 import gui.LevelController;
 import gui.MainApplication;
+import javafx.animation.ScaleTransition;
+import javafx.util.Duration;
 import objects.Player;
 
 public class GameThread extends Thread{
@@ -53,11 +55,11 @@ public class GameThread extends Thread{
 		Random rand = new Random();
 		startTimer();
 		while (gameState.isGameActive()) {
-			if(count % 100 == 0){
+			if(count % (130- gameState.getLevel()*10) == 0){
 				gameState.addBarrel();
 				count = rand.nextInt(20)+1;
 			}
-			if(gameState.isControlsEnabled() && (player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0.0 && player.getvPos() < 800))) {
+			if(!player.isClimbing() && gameState.isControlsEnabled() && (player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0.0 && player.getvPos() < 800))) {
 				player.move();
 			}
 			if(gameState.isControlsEnabled() && gameState.canClimb()){
@@ -71,9 +73,16 @@ public class GameThread extends Thread{
 			}
 			
 			gameState.checkForPlayerBarrelCollision();
+			
 			if(gameState.stageClear()) {
-				gameState.addToScore(calcTimeBonus(stopTimer()));
-				gameState.endGame(false);
+				ScaleTransition disappear = new ScaleTransition(Duration.seconds(1.5), player.getShape());
+				disappear.setToX(0.01);
+				disappear.setToY(0.01);
+				disappear.setOnFinished(e -> {
+					gameState.addToScore(calcTimeBonus(stopTimer()));
+					gameState.endGame(false);
+				});	
+				disappear.play();
 				paused = true;
 			}
 		

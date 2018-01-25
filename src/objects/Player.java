@@ -1,24 +1,19 @@
 package objects;
 
-import com.sun.xml.internal.messaging.saaj.soap.ver1_1.Header1_1Impl;
-
-import gameLogic.GameState;
-import gui.MainApplication;
+import game.GameState;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
-import sun.applet.Main;
 import utils.Settings;
 
-public class Player extends MovingGameObject {
+public class Player extends GameObject {
 
 	private double hPos, vPos, vSpeed = 0.0, hSpeed = 0.0;
-	private int health;
+	private int height, width;
 	private IntegerProperty healthProperty;
-	private boolean collision, isPressedKeyRight = false, isPressedKeyLeft = false, isPressedKeyUp = false, isPressedKeyDown = false, grounded = false, isClimbing = false, canClimb = false;
+	private boolean isPressedKeyRight = false, isPressedKeyLeft = false, isPressedKeyUp = false, isPressedKeyDown = false, grounded = true, isClimbing = false, canClimb = false;
 	private Rectangle rect;
 	private GameState gameState;
 
@@ -40,7 +35,7 @@ public class Player extends MovingGameObject {
 
 	public void setPressedKeyRight(boolean isPressedKeyRight) {
 		this.isPressedKeyRight = isPressedKeyRight;
-		if(!isPressedKeyRight && !isPressedKeyLeft) {
+		if(isPressedKeyRight == isPressedKeyLeft) {
 			hSpeed = 0.0;
 		}
 	}
@@ -51,7 +46,7 @@ public class Player extends MovingGameObject {
 
 	public void setPressedKeyLeft(boolean isPressedKeyLeft) {
 		this.isPressedKeyLeft = isPressedKeyLeft;
-		if(!isPressedKeyLeft && !isPressedKeyRight) {
+		if(isPressedKeyLeft == isPressedKeyRight) {
 			hSpeed = 0.0;
 		}
 	}
@@ -134,7 +129,9 @@ public class Player extends MovingGameObject {
 		gameState = gs;
 		this.hPos = hPosition;
 		this.vPos = vPosition;
-		this.rect = new Rectangle(hPos, vPos-30, 20, 30);
+		this.height = 30;
+		this.width = 25;
+		this.rect = new Rectangle(hPos, vPos-height, width, height);
 		this.healthProperty = new SimpleIntegerProperty(health);
 		rect.setFill(Color.STEELBLUE);
 		System.out.println("New PLayer: , hPos : "+ hPos + " vPos: "+ vPos);
@@ -180,14 +177,16 @@ public class Player extends MovingGameObject {
 //	}
 	
 	public void climb(){
-		if(canClimb && isPressedKeyUp){
+		if(canClimb && isPressedKeyUp && !isPressedKeyDown){
 			vPos -= 3.0;
 			vSpeed = 0.0;
 			isClimbing = true;
-		} else if(canClimb && isPressedKeyDown){
+			gripToLadder();
+		} else if(canClimb && isPressedKeyDown && !isPressedKeyUp){
 			vPos += 3.0;
 			vSpeed = 0.0;
 			isClimbing = true;
+			gripToLadder();
 		}
 		javafx.application.Platform.runLater(new Runnable() {
 
@@ -197,6 +196,14 @@ public class Player extends MovingGameObject {
 			}
 			 
 		 });
+	}
+	
+	private void gripToLadder() {
+		Ladder ladder = gameState.getUsedLadder(this);
+		if(ladder != null) {
+			hPos = ladder.gethPos();
+		}
+		movePlayerPolygon();
 	}
 	
 //	public void applyGravity(){
@@ -236,28 +243,31 @@ public class Player extends MovingGameObject {
 	
 	public void move() {
 		grounded = checkIfGrounded();
-		
 		//if the player is not grounded -> fall
 		 if(!grounded || vSpeed != 0) {
 			 fall();
 		 } 
 		 
 		 grounded = checkIfGrounded();
-		//If the player presses the left key and is not on the left border
+		 //If the player presses the left key and is not on the left border
 		 if(!isClimbing && isPressedKeyLeft && !isPressedKeyRight && hPos >= 5.0){
 			  //the moveDistance is set to -5
 		    	hSpeed = (grounded || hSpeed == -5.0)? -5.0 : -2.0;
-		    } else if(!isClimbing && !isPressedKeyLeft && isPressedKeyRight && hPos <= Settings.tiltedPlatformLength){ //If the player presses the right key and is not on the left border
+		    } else if(!isClimbing && !isPressedKeyLeft && isPressedKeyRight && hPos <= Settings.tiltedPlatformLength){ //If the player presses the right key and is not on the right border
 		      //the moveDistance is set to 5
 		    	hSpeed = (grounded || hSpeed == 5.0)? 5.0 : 2.0;;
-		    }	
+		    }
 		 //moveDistance is added to the hPos of the player
 		 hPos += hSpeed;
 		 //checks for a collision with a platform after moving right/left
 		 checkAndResolveCollision(hSpeed, true);
 		 
+		 movePlayerPolygon();
 		 
-		 if(!gameState.playerPlatformCollision()) {
+	}
+	
+	private synchronized void movePlayerPolygon() {
+		if(!gameState.playerPlatformCollision()) {
 			 javafx.application.Platform.runLater(new Runnable() {
 
 				@Override
@@ -312,15 +322,20 @@ public class Player extends MovingGameObject {
 				vPos -= moveDistance;
 			}
 		} else if(isClimbing) {
-			if(!horizontal) {
-			Platform platform = gameState.getCollidingPlatform();
-			Ladder ladder = gameState.getLadderPlayerIsUsing();
-			for(Ladder platformLadder : platform.getLadders()) {
-				if(ladder == platformLadder) {
-					vPos -= moveDistance;
-					break;
+			if (!horizontal) {
+				Platform platform = gameState.getCollidingPlatform();
+				Ladder ladder = gameState.getUsedLadder(this);
+				for (Ladder platformLadder : platform.getLadders()) {
+					if (ladder == platformLadder) {
+						vPos -= moveDistance;
+						break;
+					}
 				}
-			}
+			} else {
+				if(!gameState.canClimb()) {
+					hPos -= moveDistance;
+					isClimbing = true;
+				}
 			}
 		}
 	}
@@ -332,6 +347,17 @@ public class Player extends MovingGameObject {
 				healthProperty.setValue(healthProperty.intValue()-1);
 			}			
 		});		
+	}	
+	
+	@Override
+	public double getHeight() {
+		return height;
+	}
+
+
+	@Override
+	public double getWidth() {
+		return width;
 	}
 
 

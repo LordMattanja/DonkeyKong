@@ -1,9 +1,8 @@
 package gui;
 
 import java.io.IOException;
-
-import gameLogic.GameThread;
-import gameLogic.GameState;
+import game.GameState;
+import game.GameThread;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -92,6 +91,7 @@ public class MainApplication extends Application{
 	@Override
 	public synchronized void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
+		window.setResizable(false);
 		main = this;
 
 		gameState = new GameState();
@@ -142,6 +142,6 @@ public class MainApplication extends Application{
 
 	public static void main(String[] args) {    
 	    launch(args);   
-	 }
+	}
 	
 }
