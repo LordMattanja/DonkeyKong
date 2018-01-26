@@ -5,16 +5,13 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 import utils.Settings;
 
 public class Player extends GameObject {
 
-	private double hPos, vPos, vSpeed = 0.0, hSpeed = 0.0;
-	private int height, width;
+	private double vSpeed = 0.0, hSpeed = 0.0;
 	private IntegerProperty healthProperty;
 	private boolean isPressedKeyRight = false, isPressedKeyLeft = false, isPressedKeyUp = false, isPressedKeyDown = false, grounded = true, isClimbing = false, canClimb = false;
-	private Rectangle rect;
 	private GameState gameState;
 
 	public IntegerProperty getHealthProperty() {
@@ -66,10 +63,6 @@ public class Player extends GameObject {
 	public void setPressedKeyDown(boolean isPressedKeyDown) {
 		this.isPressedKeyDown = isPressedKeyDown;
 	}
-
-	public Shape getShape() {
-		return this.rect;
-	}
 	
 	public boolean isGrounded() {
 		return grounded;
@@ -95,45 +88,20 @@ public class Player extends GameObject {
 		this.canClimb = canClimb; 
 	}
 
-
-	@Override
-	public double gethPos() {
-		return hPos;
-	}
-
-	@Override
-	public void sethPos(double hPos) {
-		this.hPos = hPos;
-	}
-
-	@Override
-	public double getvPos() {
-		return vPos;
-	}
-
-
 	public void setVSpeed(Double vSpeed) {
 		this.vSpeed = vSpeed;
 	}
 
-	@Override
-	public void setvPos(double vPos) {
-		this.vPos = vPos;		
-	}
 
 	public double getvSpeed() {
 		return vSpeed;
 	}
 	
 	public Player(double hPosition, double vPosition, GameState gs, int health) {
+		super(hPosition, vPosition, 25, 30, new Rectangle(hPosition, vPosition-30, 25, 30), null);
 		gameState = gs;
-		this.hPos = hPosition;
-		this.vPos = vPosition;
-		this.height = 30;
-		this.width = 25;
-		this.rect = new Rectangle(hPos, vPos-height, width, height);
 		this.healthProperty = new SimpleIntegerProperty(health);
-		rect.setFill(Color.STEELBLUE);
+		getShape().setFill(Color.STEELBLUE);
 		System.out.println("New PLayer: , hPos : "+ hPos + " vPos: "+ vPos);
 	}
 
@@ -177,6 +145,7 @@ public class Player extends GameObject {
 //	}
 	
 	public void climb(){
+		canClimb = gameState.canClimb();
 		if(canClimb && isPressedKeyUp && !isPressedKeyDown){
 			vPos -= 3.0;
 			vSpeed = 0.0;
@@ -192,7 +161,7 @@ public class Player extends GameObject {
 
 			@Override
 			public void run() {
-				 rect.setTranslateY(vPos-Settings.playerStartingPosY);
+				 shape.setTranslateY(vPos-Settings.playerStartingPosY);
 			}
 			 
 		 });
@@ -272,8 +241,8 @@ public class Player extends GameObject {
 
 				@Override
 				public void run() {
-					 rect.setTranslateX(hPos-Settings.playerStartingPosX);
-					 rect.setTranslateY(vPos-Settings.playerStartingPosY);
+					 shape.setTranslateX(hPos-Settings.playerStartingPosX);
+					 shape.setTranslateY(vPos-Settings.playerStartingPosY);
 				}
 				 
 			 });
@@ -348,17 +317,6 @@ public class Player extends GameObject {
 			}			
 		});		
 	}	
-	
-	@Override
-	public double getHeight() {
-		return height;
-	}
-
-
-	@Override
-	public double getWidth() {
-		return width;
-	}
 
 
 }

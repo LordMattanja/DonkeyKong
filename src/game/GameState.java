@@ -95,12 +95,12 @@ public class GameState {
 		gameObjects.add(new Goal());
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
 			int tilt = (i%2 == 0)? -10 : 10, numOfLadders = (i!=Settings.numberOfPlatforms-1)? rand.nextInt(3)+1 : 1;
-			platform = new Platform(25.0*(i%2), 500/Settings.numberOfPlatforms*i+100.0, Settings.tiltedPlatformLength, true, tilt, numOfLadders);
+			platform = new Platform(25.0*(i%2), 500/Settings.numberOfPlatforms*i+100.0, Settings.tiltedPlatformLength, tilt, numOfLadders);
 			platforms.add(platform);
 			gameObjects.add(platforms.get(i));
 			addLadder(platform.getLadders());
 		}
-		platform = new Platform(-5.0, Settings.playerStartingPosY+1.01, Settings.platformLength, true, 0, 1);
+		platform = new Platform(-5.0, Settings.playerStartingPosY+1.01, Settings.platformLength, 0, 1);
 		platforms.add(platform);	
 		gameObjects.add(platform);	
 		addLadder(platform.getLadders());
@@ -202,9 +202,10 @@ public class GameState {
 				continue;
 			Shape intersecting = Shape.intersect((Shape) player.getShape(), (Shape) ladder.getShape());
 			if (intersecting.getBoundsInParent().getWidth() > 15 && intersecting.getBoundsInParent().getHeight() > 1) {
-				if(!(player.getvPos() < ladder.getvPos() + ladder.getHeight())&&player.isClimbing()) {
+				if(!(player.getvPos() < ladder.getvPos() + ladder.getHeight())&&player.isClimbing()&&(player.getvPos() < ladder.getvPos())) {
 					player.setvPos(player.getvPos() - 3.0);
 					player.setClimbing(false);
+					player.setCanClimb(false);
 					return false;
 				}
 				return true;

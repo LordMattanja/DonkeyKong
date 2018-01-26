@@ -1,24 +1,53 @@
 package objects;
 
+import javafx.scene.image.Image;
 import javafx.scene.shape.Shape;
 
 public abstract class GameObject {
 	
-	private double hPos, vPos, height, width;	
-	private Shape shape;
+	protected double hPos, vPos, height, width;
+	protected Shape shape;
+	protected Image img;
 
-	public abstract Shape getShape();
+	public double getHeight() {
+		return height;
+	}
 
-	public abstract double gethPos();
+	public double gethPos() {
+		return hPos;
+	}
 
-	public abstract void sethPos(double hPos);
+	public double getvPos() {
+		return vPos;
+	}
 
-	public abstract  double getvPos();
+	public Shape getShape() {
+		return shape;
+	}
 	
-	public abstract void setvPos(double vPos);
+	public Image getImage() {
+		return this.img;
+	}
 	
-	public abstract double getHeight();
+	public void sethPos(double hPos) {
+		this.hPos = hPos;
+	}
+
+	public void setvPos(double vPos) {
+		this.vPos = vPos;
+	}
+
+	public double getWidth() {
+		return width;
+	}
 	
-	public abstract double getWidth();
+	protected GameObject(double hPos, double vPos, double width, double height, Shape s, Image img) {
+		this.hPos = hPos;
+		this.vPos = vPos;
+		this.width = width;
+		this.height = height;
+		this.shape = s;
+		this.img = img;
+	}
 
 }

@@ -62,7 +62,6 @@ public class LevelController implements Initializable{
 	
 	
 	public void initGame() {	
-		System.out.println("initializing level");
 
 		player = main.getGamestate().getPlayer();	
 		scene = main.getLevelScene();
@@ -198,7 +197,6 @@ public class LevelController implements Initializable{
 			}
 		});
 		transition.play();
-		barrel.setTransition(transition);
 	}
 	
 	public void paintObject(GameObject obj) {
