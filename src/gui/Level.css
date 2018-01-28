@@ -32,7 +32,6 @@
 }
 
 .goal{
-	-fx-fill: radial-gradient(white, blue, green) ;
 	-fx-stroke-width: 3;
 	-fx-stroke: rgb(108,70,36);
 }

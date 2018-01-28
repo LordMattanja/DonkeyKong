@@ -34,7 +34,7 @@ public class Barrel extends GameObject{
 		);
 	} 
 	
-	private synchronized void createNextBarrelPath(Barrel barrel, int speed, boolean rolling, Ladder usedLadder) {
+	private void createNextBarrelPath(Barrel barrel, int speed, boolean rolling, Ladder usedLadder) {
 		TranslateTransition transition = new TranslateTransition();
 		RotateTransition rotate = new RotateTransition();
 		transition.setNode(barrel.getShape());
@@ -58,20 +58,20 @@ public class Barrel extends GameObject{
 					usedLadder = usedPlatform.getLadders()[x];
 					transition.setToX(usedLadder.gethPos());
 					transition.setDuration(Duration
-							.seconds((5.0)* Math.abs(((transition.getFromX()-transition.getToX())/Settings.tiltedPlatformLength))));
+							.seconds((4.0)* Math.abs(((transition.getFromX()-transition.getToX())/Settings.tiltedPlatformLength))));
 					transition.setToY(usedLadder.getvPos()-barrel.getvPos());
 				} else {
-					transition.setDuration(Duration.seconds((usedLadder == null)? 5 + speed / 10.0 : (5.0)* Math.abs(((transition.getFromX()-transition.getToX())/Settings.tiltedPlatformLength))));			
+					transition.setDuration(Duration.seconds((usedLadder == null)? 4 + speed / 10.0 : (4.0)* Math.abs(((transition.getFromX()-transition.getToX())/Settings.tiltedPlatformLength))));			
 					usedLadder = null;
 					}
 			} else {
 				usedLadder = null;
 				transition.setToX(-25);
 				transition.setInterpolator(Interpolator.EASE_OUT);
-				transition.setDuration(Duration.seconds(5.0));
+				transition.setDuration(Duration.seconds(4.0));
 			}
 		} else {
-			transition.setDuration(Duration.seconds(1 + speed / 15.0));
+			transition.setDuration(Duration.seconds(.7 + speed / 15.0));
 			if (usedLadder != null) {
 				transition.setByY(usedLadder.getHeight());
 			} else {

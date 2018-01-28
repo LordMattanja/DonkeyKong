@@ -1,12 +1,8 @@
 package game;
 
 import java.util.Random;
-
-import general.ImageLoader;
-import gui.LevelController;
 import gui.MainApplication;
 import javafx.animation.ScaleTransition;
-import javafx.scene.paint.ImagePattern;
 import javafx.util.Duration;
 import objects.Player;
 
@@ -51,11 +47,11 @@ public class GameThread extends Thread{
     }
     
 	@Override
-	public synchronized void run() {
+	public  void run() {
 		Random rand = new Random();
 		startTimer();
 		while (gameState.isGameActive()) {
-			if(count % (130- gameState.getLevel()*10) == 0){
+			if(count % (135- gameState.getLevel()*15) == 0){
 				gameState.addBarrel();
 				count = rand.nextInt(20)+1;
 			}

@@ -2,12 +2,8 @@ package gui;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.ResourceBundle;
 import game.GameState;
-import general.Settings;
-import javafx.animation.Interpolator;
-import javafx.animation.RotateTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
@@ -22,9 +18,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
-import objects.Barrel;
 import objects.GameObject;
-import objects.Ladder;
 import objects.Player;
 
 public class LevelController implements Initializable{
@@ -42,16 +36,6 @@ public class LevelController implements Initializable{
 	private Label scoreLabel;
 	@FXML 
 	private Label levelLabel;
-
-	private boolean isPressedKeyRight,  isPressedKeyLeft;
-	
-	public boolean isPressedKeyRight() {
-		return isPressedKeyRight;
-	}
-
-	public boolean isPressedKeyLeft() {
-		return isPressedKeyLeft;
-	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {

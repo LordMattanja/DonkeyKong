@@ -102,7 +102,7 @@ public class GameState {
 		level++;
 		gameObjects.add(new Goal());
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
-			int tilt = (i%2 == 0)? -10 : 10, numOfLadders = (i!=Settings.numberOfPlatforms-1)? rand.nextInt(2)+1 : 1;
+			int tilt = (i%2 == 0)? -10 : 10, numOfLadders = (i!=Settings.numberOfPlatforms-1)? rand.nextInt(3)+1 : 1;
 			platform = new Platform(25.0*(i%2), 500/Settings.numberOfPlatforms*i+100.0, Settings.tiltedPlatformLength, tilt, numOfLadders);
 			platforms.add(platform);
 			gameObjects.add(platforms.get(i));
@@ -116,7 +116,7 @@ public class GameState {
 		gameObjects.add(player);
 	}
 
-	public synchronized boolean checkForObjectCollision(GameObject obj){
+	public  boolean checkForObjectCollision(GameObject obj){
 		if(obj == player && player.isClimbing()) return false;
 		for(Platform platform : platforms){
 			if(platform.getShape().getBoundsInParent().intersects(player.getShape().getBoundsInParent())) {
@@ -129,7 +129,7 @@ public class GameState {
 		return false;
 	}
 	
-	public synchronized boolean hasReachedGoal() {
+	public  boolean hasReachedGoal() {
 		double x = player.gethPos(), y = player.getvPos();
 		for(GameObject object : gameObjects) {
 			if(object.getClass().equals(Goal.class)) {
@@ -150,7 +150,7 @@ public class GameState {
 		return false;
 	}
 	
-	public synchronized boolean checkForPolygonCollision(Polygon poly){
+	public  boolean checkForPolygonCollision(Polygon poly){
 		if(poly.getPoints().isEmpty()) return false;
 		for(Platform platform : platforms){
 			if(platform.getShape().getBoundsInParent().intersects(player.getShape().getBoundsInParent())) {
@@ -163,7 +163,7 @@ public class GameState {
 		return false;
 	}
 
-	public synchronized Platform getCollidingPlatform(){
+	public  Platform getCollidingPlatform(){
 		double x = player.gethPos(), y = player.getvPos();
 		for(Platform platform : platforms){
 				if(platform.getShape().getBoundsInLocal().getMinY() - y > 30) continue;
@@ -182,7 +182,7 @@ public class GameState {
 		return null;
 	}
 	
-	public synchronized Platform getCurrentlyUsedPlatform(GameObject obj) {
+	public  Platform getCurrentlyUsedPlatform(GameObject obj) {
 		for(Platform platform : platforms) {
 			if(platform.getShape().getBoundsInParent().intersects(obj.getShape().getBoundsInParent())) {
 				return platform;
@@ -191,7 +191,7 @@ public class GameState {
 		return null;
 	}
 	
-	public synchronized boolean checkForPlayerBarrelCollision(){
+	public  boolean checkForPlayerBarrelCollision(){
 		for (Barrel barrel : barrels) {
 			if(barrel.getShape().getBoundsInParent().getMinY() - player.getvPos() > 45)continue;
 				Shape intersectingShape = Polygon.intersect((Shape)player.getShape(), (Shape)barrel.getShape());
@@ -203,7 +203,7 @@ public class GameState {
 		return false;
 	}
 	
-	public synchronized boolean canClimb() {
+	public  boolean canClimb() {
 		for (Ladder ladder : ladders) {
 			if (ladder.getShape().getBoundsInParent().getMinY() - player.getvPos() > 120)
 				continue;
@@ -224,7 +224,7 @@ public class GameState {
 		return false;
 	}
 
-	public synchronized Ladder getUsedLadder(GameObject object) {
+	public  Ladder getUsedLadder(GameObject object) {
 		for (Ladder ladder : ladders) {
 			if (object.equals(player) && ladder.getShape().getBoundsInParent().getMinY() - object.getvPos() > 120)
 				continue;
@@ -237,7 +237,7 @@ public class GameState {
 		return null;
 	}
 	
-	public synchronized boolean playerPlatformCollision() {
+	public  boolean playerPlatformCollision() {
 		if(canClimb() && player.isClimbing()) return false;
 		double x = player.gethPos(), y = player.getvPos();
 		for(Platform platform : platforms) {
@@ -257,7 +257,7 @@ public class GameState {
 		return false;
 	}
 	
-	public synchronized void addLadder(Ladder[] ladders) {
+	public void addLadder(Ladder[] ladders) {
 		for(Ladder ladder : ladders) {
 			if(!this.ladders.contains(ladder)) {
 				this.ladders.add(ladder);
@@ -268,7 +268,7 @@ public class GameState {
 		}
 	}
 	
-	protected synchronized void addBarrel(){
+	protected void addBarrel(){
 		Random rand = new Random();
 		Barrel barrel = new Barrel(Settings.barrelStartingPosX, Settings.barrelStartingPosY, true, Settings.barrelSize, rand.nextInt(3));
 		barrels.add(barrel);
@@ -276,7 +276,7 @@ public class GameState {
 		main.getContrLevel().paintObject(barrel);
 	}
 	
-	public synchronized void removeBarrel(Barrel barrel) {
+	public void removeBarrel(Barrel barrel) {
 		main.getContrLevel().removeObject(barrel);
 		barrels.remove(barrel);
 		gameObjects.remove(barrel);
@@ -299,7 +299,7 @@ public class GameState {
 		});		
 	}
 	
-	public synchronized void endGame(boolean gameover){
+	public void endGame(boolean gameover){
 		gameActive = false;
 		controlsEnabled = false;
 		for(GameObject object : gameObjects) {
