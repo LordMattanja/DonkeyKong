@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.shape.*?>
@@ -7,17 +8,29 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="834.0" prefWidth="682.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.LevelController">
+<AnchorPane prefHeight="650.0" prefWidth="682.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.LevelController">
    <children>
-      <VBox layoutX="2.0" layoutY="-1.0" prefHeight="834.0" prefWidth="682.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="-1.0">
+      <VBox alignment="CENTER" layoutX="2.0" layoutY="-1.0" prefHeight="750.0" prefWidth="682.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="-1.0">
          <children>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="682.0" spacing="5.0">
                <children>
-                  <Label fx:id="levelLabel" text="Level: " />
+                  <Label fx:id="levelLabel" text="Level: ">
+                     <HBox.margin>
+                        <Insets right="25.0" />
+                     </HBox.margin></Label>
+                  <Label fx:id="scoreLabel" text="Score: ">
+                     <HBox.margin>
+                        <Insets right="25.0" />
+                     </HBox.margin>
+                  </Label>
                   <Label text="Health: " />
                   <Label fx:id="playerHealthLabel" text="3" />
                </children>
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
             </HBox>
+            <Button mnemonicParsing="false" onAction="#backToMenu" text="Menu" />
             <AnchorPane fx:id="gamePane" prefHeight="739.0" prefWidth="682.0" />
          </children>
       </VBox>

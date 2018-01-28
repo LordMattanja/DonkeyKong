@@ -63,7 +63,7 @@ public class MenuController implements Initializable{
 	@FXML
 	private void startGame() {
 		MainApplication.getMain().getGamestate().setPlayerName(playerNameField.getText());
-		MainApplication.getMain().startAgain(false);
+		MainApplication.getMain().startGame(false);
 	}
 	
 	@FXML

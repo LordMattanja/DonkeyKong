@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.ResourceBundle;
 import game.GameState;
+import general.Settings;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
 import javafx.animation.TranslateTransition;
@@ -25,7 +26,6 @@ import objects.Barrel;
 import objects.GameObject;
 import objects.Ladder;
 import objects.Player;
-import utils.Settings;
 
 public class LevelController implements Initializable{
 	
@@ -38,6 +38,8 @@ public class LevelController implements Initializable{
 	private IntegerProperty playerHealthProperty = new SimpleIntegerProperty();
 	@FXML 
 	private Label playerHealthLabel;
+	@FXML
+	private Label scoreLabel;
 	@FXML 
 	private Label levelLabel;
 
@@ -67,15 +69,13 @@ public class LevelController implements Initializable{
 		scene = main.getLevelScene();
 		
 		levelLabel.setText("Level: " + main.getGamestate().getLevel());
+		scoreLabel.setText("Score: " + main.getGamestate().getScore());
 		
-		playerHealthProperty.bind(player.getHealthProperty());
+		playerHealthProperty.bind(gameState.getHealthProperty());
 		playerHealthLabel.textProperty().bind(playerHealthProperty.asString());
 		
 		ArrayList<GameObject> staticObjects = gameState.getGameObjects();
 		
-//		for(int i = 0; i < movingObjects.size(); i++){
-//			gamePane.getChildren().add(movingObjects.get(i).getShape());
-//		}		
 		for (int i = 0; i < staticObjects.size(); i++){
 			gamePane.getChildren().add(staticObjects.get(i).getShape());
 		}
@@ -98,7 +98,7 @@ public class LevelController implements Initializable{
 				} else if(event.getCode() == KeyCode.RIGHT) {
 					player.setPressedKeyRight(true);
 				}
-				if(event.getCode() == KeyCode.SPACE && gameState.isGameActive() && gameState.isControlsEnabled()) {
+				if(event.getCode() == KeyCode.X && gameState.isGameActive() && gameState.isControlsEnabled()) {
 					if(player.isGrounded() || player.isClimbing()){
 					  player.setVSpeed(-8.8);
 					  player.setClimbing(false);
@@ -125,78 +125,8 @@ public class LevelController implements Initializable{
 					player.setPressedKeyDown(false);
 			    }
 		});
-	}
-	
-	public void createNewBarrelPath(Barrel barrel, int speed, boolean rolling) {
-		Platform.runLater(new Runnable() {
-
-			@Override
-			public void run() {
-				createNextBarrelPath(barrel, speed, rolling, null);
-			}
-		}
-		);
-	}
-	
-	private synchronized void createNextBarrelPath(Barrel barrel, int speed, boolean rolling, Ladder usedLadder) {
-		TranslateTransition transition = new TranslateTransition();
-		RotateTransition rotate = new RotateTransition();
-		transition.setNode(barrel.getShape());
-		transition.setFromX(barrel.getShape().getBoundsInParent().getMinX());
-		transition.setFromY(barrel.getShape().getBoundsInParent().getMaxY()- barrel.getvPos());
-		transition.setInterpolator(Interpolator.LINEAR);
-		transition.setCycleCount(1);
-		if (rolling) {
-			rotate = new RotateTransition(Duration.seconds(1), barrel.getShape());
-			rotate.setByAngle((gameState.getCurrentlyUsedPlatform(barrel) != null)? gameState.getCurrentlyUsedPlatform(barrel).getTilt()*-36 : -360);
-			rotate.setCycleCount(RotateTransition.INDEFINITE);
-			rotate.setInterpolator(Interpolator.LINEAR);
-			rotate.play();objects.Platform usedPlatform = gameState.getCurrentlyUsedPlatform(barrel);
-			if (usedPlatform != null) {
-				transition.setToX((usedPlatform.getTilt() < 0) ? 600 : 5);
-				transition.setToY((usedPlatform.getTilt() < 0) ? usedPlatform.getvPos() - barrel.getvPos() - usedPlatform.getTilt() : usedPlatform.getvPos() - barrel.getvPos() + usedPlatform.getTilt());
-				Random rand = new Random();
-				int x = rand.nextInt(5);
-				if (x < usedPlatform.getLadders().length && usedPlatform.getLadders()[x].getvPos() > barrel.getShape()
-						.getBoundsInParent().getMaxY()) {
-					usedLadder = usedPlatform.getLadders()[x];
-					transition.setToX(usedLadder.gethPos());
-					transition.setDuration(Duration
-							.seconds((5.0)* Math.abs(((transition.getFromX()-transition.getToX())/Settings.tiltedPlatformLength))));
-					transition.setToY(usedLadder.getvPos()-barrel.getvPos());
-				} else {
-					transition.setDuration(Duration.seconds((usedLadder == null)? 5 + speed / 10.0 : (5.0)* Math.abs(((transition.getFromX()-transition.getToX())/Settings.tiltedPlatformLength))));			
-					usedLadder = null;
-					}
-			} else {
-				usedLadder = null;
-				transition.setToX(-25);
-				transition.setInterpolator(Interpolator.EASE_OUT);
-				transition.setDuration(Duration.seconds(5.0));
-			}
-		} else {
-			transition.setDuration(Duration.seconds(1 + speed / 15.0));
-			if (usedLadder != null) {
-				transition.setByY(usedLadder.getHeight());
-			} else {
-				transition.setToY((barrel.getShape().getBoundsInParent().getMaxY() < Settings.playerStartingPosY - 100)
-						? transition.getFromY() + 500 / Settings.numberOfPlatforms - 20
-						: Settings.playerStartingPosY - barrel.getvPos());
-			}
-		}
-		final RotateTransition rotateFinal = rotate;
-		final Ladder finalLadder = usedLadder;
-		transition.setOnFinished(e -> {
-			if (barrel.getShape().getBoundsInParent().getMinX() < 0) {
-				MainApplication.getMain().getGamestate().removeBarrel(barrel);
-			} else {
-				if (rolling) {
-					rotateFinal.stop();
-				}
-				createNextBarrelPath(barrel, speed, !rolling, finalLadder);
-			}
-		});
-		transition.play();
+		
+		gamePane.requestFocus();
 	}
 	
 	public void paintObject(GameObject obj) {
@@ -234,6 +164,13 @@ public class LevelController implements Initializable{
 				main.setMenuScene();
 			}
 		});
+	}
+	
+	@FXML 
+	private void backToMenu() {
+		main.getGameThread().pauseThread();
+		gameState.endGame(true);
+		main.setMenuScene();
 	}
 	
 

@@ -3,14 +3,14 @@ package gui;
 import java.io.IOException;
 import game.GameState;
 import game.GameThread;
+import general.Settings;
+import general.XMLFileWriter;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import utils.Settings;
-import utils.XMLFileWriter;
 
 public class MainApplication extends Application{
 	
@@ -61,6 +61,18 @@ public class MainApplication extends Application{
 	public static MainApplication getMain() {
 		return main;
 	}
+
+	public void setMenuScene() {
+		window.setScene(menuScene);
+	}
+	
+	public void setLevelScene() {
+		window.setScene(levelScene);
+	}
+	
+	public void setScoreScene() {
+		window.setScene(scoreScene);
+	}
 	
 	
 	private void initialize() {
@@ -91,7 +103,7 @@ public class MainApplication extends Application{
 	@Override
 	public synchronized void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
-		window.setResizable(false);
+//		window.setResizable(false);
 		main = this;
 
 		gameState = new GameState();
@@ -102,28 +114,14 @@ public class MainApplication extends Application{
 		window.setOnCloseRequest(e -> {
 			XMLFileWriter.writeFile();
 			XMLFileWriter.updateDocument();
-		});
-		
+		});		
 	}
 	
-	public void setMenuScene() {
-		window.setScene(menuScene);
-	}
-	
-	public void setLevelScene() {
-		window.setScene(levelScene);
-	}
-	
-	public void setScoreScene() {
-		window.setScene(scoreScene);
-	}
-	
-	public synchronized void startAgain(boolean nextLevel) {
+	public synchronized void startGame(boolean nextLevel) {
 		gameState.initLevel();
 		if(!nextLevel){
 			window.setScene(levelScene);
 			gameThread = new GameThread();
-			gameThread.initGameThread();
 		}
 		Platform.runLater(new Runnable() {
 			@Override
@@ -132,6 +130,7 @@ public class MainApplication extends Application{
 				gameState.setGameActive(true);
 				if (!nextLevel) {
 					gameThread.start();
+					gameState.getHealthProperty().setValue(3);
 				} else {
 					gameThread.updatePlayer();
 					gameThread.resumeThread();

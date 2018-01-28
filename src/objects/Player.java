@@ -1,22 +1,19 @@
 package objects;
 
 import game.GameState;
+import general.ImageLoader;
+import general.Settings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
-import utils.Settings;
 
 public class Player extends GameObject {
 
 	private double vSpeed = 0.0, hSpeed = 0.0;
-	private IntegerProperty healthProperty;
 	private boolean isPressedKeyRight = false, isPressedKeyLeft = false, isPressedKeyUp = false, isPressedKeyDown = false, grounded = true, isClimbing = false, canClimb = false;
 	private GameState gameState;
-
-	public IntegerProperty getHealthProperty() {
-		return healthProperty;
-	}
 	
 	public double gethSpeed() {
 		return hSpeed;
@@ -97,11 +94,10 @@ public class Player extends GameObject {
 		return vSpeed;
 	}
 	
-	public Player(double hPosition, double vPosition, GameState gs, int health) {
-		super(hPosition, vPosition, 25, 30, new Rectangle(hPosition, vPosition-30, 25, 30), null);
+	public Player(double hPosition, double vPosition, GameState gs) {
+		super(hPosition, vPosition, 25, 40, new Rectangle(hPosition, vPosition-30, 25, 30), ImageLoader.getPlayerImage());
 		gameState = gs;
-		this.healthProperty = new SimpleIntegerProperty(health);
-		getShape().setFill(Color.STEELBLUE);
+		shape.setFill(new ImagePattern(img));
 		System.out.println("New PLayer: , hPos : "+ hPos + " vPos: "+ vPos);
 	}
 
@@ -231,8 +227,7 @@ public class Player extends GameObject {
 		 //checks for a collision with a platform after moving right/left
 		 checkAndResolveCollision(hSpeed, true);
 		 
-		 movePlayerPolygon();
-		 
+		 movePlayerPolygon();		 
 	}
 	
 	private synchronized void movePlayerPolygon() {
@@ -307,16 +302,18 @@ public class Player extends GameObject {
 				}
 			}
 		}
-	}
-	
-	public void updatePlayerHealth() {
-		javafx.application.Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				healthProperty.setValue(healthProperty.intValue()-1);
-			}			
-		});		
 	}	
 
+	public void switchPlayerImg(boolean walking) {
+		if(!walking) {
+			 img = ImageLoader.getPlayerImage();
+		} else if(img != ImageLoader.getPlayerWalkingImage()[0]) {
+			 img = ImageLoader.getPlayerWalkingImage()[0];
+		 } else {
+			 img = ImageLoader.getPlayerWalkingImage()[1];
+		 } 
+		 shape.setFill(new ImagePattern(img));
+	}
+	
 
 }

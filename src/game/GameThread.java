@@ -2,9 +2,11 @@ package game;
 
 import java.util.Random;
 
+import general.ImageLoader;
 import gui.LevelController;
 import gui.MainApplication;
 import javafx.animation.ScaleTransition;
+import javafx.scene.paint.ImagePattern;
 import javafx.util.Duration;
 import objects.Player;
 
@@ -12,7 +14,6 @@ public class GameThread extends Thread{
 	
 	private Player player;
 	private MainApplication main;
-	private LevelController contrLvl;
 	private GameState gameState;
 	private final Object pauseLock = new Object();
 	private boolean paused = false;
@@ -23,9 +24,8 @@ public class GameThread extends Thread{
 		this.paused = paused;
 	}
 
-	public void initGameThread(){
+	public GameThread(){
 		main = MainApplication.getMain();
-		contrLvl = main.getContrLevel();
 		gameState = main.getGamestate();   
 		player = gameState.getPlayer();
     }
@@ -61,6 +61,11 @@ public class GameThread extends Thread{
 			}
 			if(!player.isClimbing() && gameState.isControlsEnabled() && (player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0.0 && player.getvPos() < 800))) {
 				player.move();
+				if(count % 10 == 0) {
+					 player.switchPlayerImg(true);
+				 }
+			} else {
+				 player.switchPlayerImg(false);
 			}
 			if(gameState.isControlsEnabled() && gameState.canClimb()){
 				player.setCanClimb(true);
@@ -72,9 +77,11 @@ public class GameThread extends Thread{
 				player.setClimbing(false);
 			}
 			
-			gameState.checkForPlayerBarrelCollision();
+			if(gameState.checkForPlayerBarrelCollision()) {
+				gameState.updatePlayerHealth();
+			}
 			
-			if(gameState.stageClear()) {
+			if(gameState.hasReachedGoal()) {
 				ScaleTransition disappear = new ScaleTransition(Duration.seconds(1.5), player.getShape());
 				disappear.setToX(0.01);
 				disappear.setToY(0.01);
@@ -86,11 +93,12 @@ public class GameThread extends Thread{
 				paused = true;
 			}
 		
-			if(player.getHealthProperty().intValue() == 0) {
+			if(gameState.getHealthProperty().intValue() == 0) {
 				main.getContrLevel().gameOver(gameState.getScore());
 				gameState.endGame(true);
 				paused = true;
 			}
+			
 			synchronized (pauseLock) {
 				if (paused) {
 					try {

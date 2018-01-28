@@ -2,7 +2,12 @@ package game;
 
 import java.util.ArrayList;
 import java.util.Random;
+import general.Game;
+import general.Settings;
+import general.XMLFileWriter;
 import gui.MainApplication;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 import objects.Barrel;
@@ -11,9 +16,6 @@ import objects.Goal;
 import objects.Ladder;
 import objects.Platform;
 import objects.Player;
-import utils.Game;
-import utils.Settings;
-import utils.XMLFileWriter;
 
 public class GameState {
 	
@@ -26,7 +28,12 @@ public class GameState {
 	private ArrayList<Ladder> ladders;
 	private MainApplication main;
 	private boolean gameActive = false, controlsEnabled = false;
-	private int playerHealth = 3;
+	private IntegerProperty healthProperty;
+
+	public IntegerProperty getHealthProperty() {
+		return healthProperty;
+	}
+	
 	
 	public void setPlayerName(String name) {
 		playerName = name;
@@ -86,6 +93,7 @@ public class GameState {
 		platforms = new ArrayList<Platform>();
 		ladders = new ArrayList<Ladder>();
 		barrels = new ArrayList<Barrel>();
+		this.healthProperty = new SimpleIntegerProperty(Settings.playerHealth);
 	}
 	
 	public void initLevel() {
@@ -94,7 +102,7 @@ public class GameState {
 		level++;
 		gameObjects.add(new Goal());
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
-			int tilt = (i%2 == 0)? -10 : 10, numOfLadders = (i!=Settings.numberOfPlatforms-1)? rand.nextInt(3)+1 : 1;
+			int tilt = (i%2 == 0)? -10 : 10, numOfLadders = (i!=Settings.numberOfPlatforms-1)? rand.nextInt(2)+1 : 1;
 			platform = new Platform(25.0*(i%2), 500/Settings.numberOfPlatforms*i+100.0, Settings.tiltedPlatformLength, tilt, numOfLadders);
 			platforms.add(platform);
 			gameObjects.add(platforms.get(i));
@@ -104,7 +112,7 @@ public class GameState {
 		platforms.add(platform);	
 		gameObjects.add(platform);	
 		addLadder(platform.getLadders());
-		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY, this, playerHealth);
+		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY, this);
 		gameObjects.add(player);
 	}
 
@@ -121,7 +129,7 @@ public class GameState {
 		return false;
 	}
 	
-	public synchronized boolean stageClear() {
+	public synchronized boolean hasReachedGoal() {
 		double x = player.gethPos(), y = player.getvPos();
 		for(GameObject object : gameObjects) {
 			if(object.getClass().equals(Goal.class)) {
@@ -189,7 +197,6 @@ public class GameState {
 				Shape intersectingShape = Polygon.intersect((Shape)player.getShape(), (Shape)barrel.getShape());
 				if(intersectingShape.getBoundsInParent().getHeight() > 0 && intersectingShape.getBoundsInParent().getWidth() > 0){
 					removeBarrel(barrel);
-					player.updatePlayerHealth();
 					return true;
 			}
 		}
@@ -200,15 +207,20 @@ public class GameState {
 		for (Ladder ladder : ladders) {
 			if (ladder.getShape().getBoundsInParent().getMinY() - player.getvPos() > 120)
 				continue;
-			Shape intersecting = Shape.intersect((Shape) player.getShape(), (Shape) ladder.getShape());
+			Shape intersecting = Shape.intersect(player.getShape(), ladder.getShape());
 			if (intersecting.getBoundsInParent().getWidth() > 15 && intersecting.getBoundsInParent().getHeight() > 1) {
-				if(!(player.getvPos() < ladder.getvPos() + ladder.getHeight())&&player.isClimbing()&&(player.getvPos() < ladder.getvPos())) {
-					player.setvPos(player.getvPos() - 3.0);
-					player.setClimbing(false);
-					player.setCanClimb(false);
+				if(!(player.getvPos() <= ladder.getvPos() + ladder.getHeight()) && player.isClimbing()) {
+					if(player.isClimbing()) {
+						player.setvPos(player.getvPos() - 3);
+						player.setClimbing(false);
+						player.setCanClimb(false);
+					}					
 					return false;
+				}else {
+					System.out.println("vert: " + player.getvPos() +" < " + (ladder.getvPos() + ladder.getHeight() + 3) + " && > " + ladder.getvPos());
+					System.out.println("hor: " + player.gethPos() + " - " + ladder.gethPos() + "/n");
+					return true;
 				}
-				return true;
 			}
 		}
 		return false;
@@ -276,7 +288,17 @@ public class GameState {
 		score += 1000;
 		score += level*100;
 		score += timeBonus;
-		score += player.getHealthProperty().intValue()*200;
+		score += healthProperty.intValue()*200;
+	}
+	
+
+	public void updatePlayerHealth() {
+		javafx.application.Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				healthProperty.setValue(healthProperty.intValue()-1);
+			}			
+		});		
 	}
 	
 	public synchronized void endGame(boolean gameover){
@@ -289,15 +311,14 @@ public class GameState {
 		gameObjects.clear();
 		barrels.clear();
 		platforms.clear();
-		playerHealth = player.getHealthProperty().getValue().intValue();
+		ladders.clear();
 		player = null;
 		if(!gameover){
-			main.startAgain(true);
+			main.startGame(true);
 		} else {
 			XMLFileWriter.addNewGame(new Game(playerName, score, level));
 			level = 0;
 			score = 0;
-			playerHealth = 3;
 		}
 	}
 	

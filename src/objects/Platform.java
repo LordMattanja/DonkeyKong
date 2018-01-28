@@ -1,12 +1,13 @@
 package objects;
 
 import java.util.Random;
+
+import general.ImageLoader;
+import general.Settings;
 import gui.MainApplication;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
-import utils.ImageLoader;
-import utils.Settings;
 
 public class Platform extends GameObject{
 	
@@ -61,7 +62,7 @@ public class Platform extends GameObject{
 			}
 			if((ladderID != 0) && (hPosLadder - ladders[ladderID-1].gethPos() > getWidth()))	correctPositionfound = false;	
 		}
-		return hPosLadder;
+		return hPosLadder/25*25;
 	}
 	
 	private double calcLadderVPos(double hPosLadder) {
@@ -69,7 +70,5 @@ public class Platform extends GameObject{
 		vPosLadder = vPosLadder/(Settings.tiltedPlatformLength/2)*tilt;
 		return (tilt != 0)? vPosLadder*-1 : 0;
 	}
-
-
 
 }

@@ -4,13 +4,12 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import general.Game;
+import general.XMLFileWriter;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import sun.font.CreatedFontTracker;
-import utils.Game;
-import utils.XMLFileWriter;
 
 public class ScoreBoardController implements Initializable{
 
@@ -32,7 +31,6 @@ public class ScoreBoardController implements Initializable{
 	
 	@FXML
 	private void clear() {
-		System.out.println("clearing");
 		XMLFileWriter.createNewFile();
 		XMLFileWriter.writeFile();
 		XMLFileWriter.updateDocument();

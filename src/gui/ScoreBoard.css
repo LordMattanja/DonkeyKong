@@ -3,7 +3,7 @@
 }
 
 .root{
-	-fx-background-image: url("../utils/resources/brickwall.png");
+	-fx-background-image: url("../general/resources/brickwall.png");
 	-fx-background-size: 40%;
 }
 
@@ -11,7 +11,7 @@
 	-fx-font-size: 14;
 	-fx-text-fill: #E9B452;
 	-fx-font-family: "Upheaval TT -BRK-";
-	-fx-background-image: url("../utils/resources/singleBrick.png");
+	-fx-background-image: url("../general/resources/singleBrick.png");
 	-fx-background-size: 100% 100%;
 }
 
