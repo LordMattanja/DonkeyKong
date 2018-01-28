@@ -98,7 +98,7 @@ public class LevelController implements Initializable{
 				} else if(event.getCode() == KeyCode.RIGHT) {
 					player.setPressedKeyRight(true);
 				}
-				if(event.getCode() == KeyCode.X && gameState.isGameActive() && gameState.isControlsEnabled()) {
+				if(event.getCode() == KeyCode.CONTROL && gameState.isGameActive() && gameState.isControlsEnabled()) {
 					if(player.isGrounded() || player.isClimbing()){
 					  player.setVSpeed(-8.8);
 					  player.setClimbing(false);
@@ -167,7 +167,7 @@ public class LevelController implements Initializable{
 	}
 	
 	@FXML 
-	private void backToMenu() {
+	protected void backToMenu() {
 		main.getGameThread().pauseThread();
 		gameState.endGame(true);
 		main.setMenuScene();

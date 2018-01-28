@@ -217,8 +217,6 @@ public class GameState {
 					}					
 					return false;
 				}else {
-					System.out.println("vert: " + player.getvPos() +" < " + (ladder.getvPos() + ladder.getHeight() + 3) + " && > " + ladder.getvPos());
-					System.out.println("hor: " + player.gethPos() + " - " + ladder.gethPos() + "/n");
 					return true;
 				}
 			}

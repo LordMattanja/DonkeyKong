@@ -61,7 +61,7 @@ public class GameThread extends Thread{
 			}
 			if(!player.isClimbing() && gameState.isControlsEnabled() && (player.isPressedKeyLeft() || player.isPressedKeyRight() || (player.getvSpeed() != 0.0 && player.getvPos() < 800))) {
 				player.move();
-				if(count % 10 == 0) {
+				if(count % 7 == 0) {
 					 player.switchPlayerImg(true);
 				 }
 			} else {

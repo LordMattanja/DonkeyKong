@@ -215,15 +215,16 @@ public class Player extends GameObject {
 		 
 		 grounded = checkIfGrounded();
 		 //If the player presses the left key and is not on the left border
-		 if(!isClimbing && isPressedKeyLeft && !isPressedKeyRight && hPos >= 5.0){
+		 if(!isClimbing && isPressedKeyLeft && !isPressedKeyRight){
 			  //the moveDistance is set to -5
+			 System.out.println(hPos);
 		    	hSpeed = (grounded || hSpeed == -5.0)? -5.0 : -2.0;
-		    } else if(!isClimbing && !isPressedKeyLeft && isPressedKeyRight && hPos <= Settings.tiltedPlatformLength){ //If the player presses the right key and is not on the right border
+		    } else if(!isClimbing && !isPressedKeyLeft && isPressedKeyRight){ //If the player presses the right key and is not on the right border
 		      //the moveDistance is set to 5
 		    	hSpeed = (grounded || hSpeed == 5.0)? 5.0 : 2.0;;
 		    }
 		 //moveDistance is added to the hPos of the player
-		 hPos += hSpeed;
+		 if(!(hPos <= 0.0 && hSpeed < 0 || hPos >= Settings.platformLength-width-5 && hSpeed > 0)) hPos += hSpeed;
 		 //checks for a collision with a platform after moving right/left
 		 checkAndResolveCollision(hSpeed, true);
 		 

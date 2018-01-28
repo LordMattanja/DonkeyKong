@@ -89,7 +89,7 @@ public class MainApplication extends Application{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		window.setHeight(Settings.playerStartingPosY+125);
+		window.setHeight(Settings.playerStartingPosY+100);
 		window.setWidth(650);
 		levelScene = new Scene(rootLevel, Settings.sceneWidth, Settings.sceneHeight);
 		menuScene = new Scene(rootMenu, Settings.sceneWidth, Settings.sceneHeight);
@@ -103,7 +103,7 @@ public class MainApplication extends Application{
 	@Override
 	public synchronized void start(Stage primaryStage) throws Exception {
 		window = primaryStage;
-//		window.setResizable(false);
+		window.setResizable(false);
 		main = this;
 
 		gameState = new GameState();
