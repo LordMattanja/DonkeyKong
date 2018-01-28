@@ -85,12 +85,12 @@ public class MainApplication extends Application{
 			rootMenu = (Pane)menuLoader.load();
 			rootMenu.getStylesheets().add(getClass().getResource("Menu.css").toExternalForm());
 			rootScore = (Pane)scoreLoader.load();
-			rootScore.getStylesheets().add(getClass().getResource("ScoreBoard.css").toExternalForm());
+			rootScore.getStylesheets().add(getClass().getResource("Menu.css").toExternalForm());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		window.setHeight(Settings.playerStartingPosY+100);
-		window.setWidth(650);
+		window.setWidth(635);
 		levelScene = new Scene(rootLevel, Settings.sceneWidth, Settings.sceneHeight);
 		menuScene = new Scene(rootMenu, Settings.sceneWidth, Settings.sceneHeight);
 		scoreScene = new Scene(rootScore, Settings.sceneWidth, Settings.sceneHeight);

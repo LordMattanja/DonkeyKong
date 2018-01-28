@@ -19,8 +19,12 @@
 	-fx-font-size: 36;
 }
 
-.label{
+#enterNameLabel{	
 	-fx-font-size: 18;
+}
+
+.label{
+	-fx-font-size: 24;
 	-fx-text-fill: #E9B452;
 	-fx-font-family: "Upheaval TT -BRK-";
 }

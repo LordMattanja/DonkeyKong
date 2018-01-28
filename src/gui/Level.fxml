@@ -8,18 +8,18 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="725.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.LevelController">
+<AnchorPane prefHeight="834.0" prefWidth="625.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.LevelController">
    <children>
-      <StackPane layoutX="2.0" layoutY="-1.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="-1.0">
+      <StackPane alignment="CENTER_LEFT" layoutX="2.0" layoutY="-1.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="-1.0">
          <children>
-            <AnchorPane fx:id="gamePane" prefHeight="739.0" prefWidth="682.0">
+            <AnchorPane fx:id="gamePane" prefHeight="739.0" prefWidth="625.0">
                <StackPane.margin>
                   <Insets top="50.0" />
                </StackPane.margin>
             </AnchorPane>
-            <VBox alignment="TOP_CENTER" layoutX="2.0" layoutY="-1.0" prefHeight="650.0" prefWidth="650.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="-1.0" StackPane.alignment="TOP_CENTER">
+            <VBox alignment="TOP_CENTER" layoutX="2.0" layoutY="-1.0" prefHeight="834.0" prefWidth="682.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="-2.0" AnchorPane.topAnchor="-1.0" StackPane.alignment="TOP_CENTER">
                <children>
-                  <HBox alignment="CENTER" prefHeight="30.0" prefWidth="650.0" spacing="5.0" VBox.vgrow="NEVER">
+                  <HBox alignment="CENTER" prefHeight="28.0" prefWidth="650.0" spacing="5.0">
                      <children>
                         <Label fx:id="levelLabel" text="Level: ">
                            <HBox.margin>
@@ -38,11 +38,7 @@
                         <Insets top="5.0" />
                      </VBox.margin>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#backToMenu" text="Menu">
-                     <VBox.margin>
-                        <Insets bottom="-50.0" top="5.0" />
-                     </VBox.margin>
-                  </Button>
+                  <Button mnemonicParsing="false" onAction="#backToMenu" text="Menu" />
                </children>
             </VBox>
          </children>

@@ -101,7 +101,7 @@ public class LevelController implements Initializable{
 				if(event.getCode() == KeyCode.CONTROL && gameState.isGameActive() && gameState.isControlsEnabled()) {
 					if(player.isGrounded() || player.isClimbing()){
 					  player.setVSpeed(-8.8);
-					  player.setClimbing(false);
+					  player.stopClimbing();
 					}
 				}	
 				if(event.getCode() == KeyCode.UP){
