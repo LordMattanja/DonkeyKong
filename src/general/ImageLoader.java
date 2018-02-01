@@ -10,6 +10,9 @@ public class ImageLoader {
 	private static Image playerImg;
 	private static Image[] playerWalking;
 	
+	/*
+	 * Lädt das Bild für das Fass
+	 */
 	public static Image getBarrelImage() {
 		if(barrelImg == null) {
 			String url = ImageLoader.class.getResource("resources/barrel.png").toString();
@@ -18,6 +21,9 @@ public class ImageLoader {
 		return barrelImg;
 	}
 	
+	/*
+	 * Lädt das Bild der Leiter
+	 */
 	public static Image getLadderImage() {
 		if(ladderImg == null) {
 			String url = ImageLoader.class.getResource("resources/ladder.png").toString();
@@ -26,6 +32,9 @@ public class ImageLoader {
 		return ladderImg;
 	}
 	
+	/*
+	 * Lädt das Bild der Plattform
+	 */
 	public static Image getPlatformImage() {
 		if(platformImg == null) {
 			String url = ImageLoader.class.getResource("resources/platformwall.png").toString();
@@ -34,6 +43,9 @@ public class ImageLoader {
 		return platformImg;
 	}
 	
+	/*
+	 * Lädt das Bild des Spielers
+	 */
 	public static Image getPlayerImage() {
 		if(playerImg == null) {
 			String url = ImageLoader.class.getResource("resources/kplayer.png").toString();
@@ -42,6 +54,9 @@ public class ImageLoader {
 		return playerImg;
 	}
 	
+	/*
+	 * Lädt die Bilder des Spielers bei Bewegung
+	 */
 	public static Image[] getPlayerWalkingImage() {
 		if(playerWalking == null) {
 			playerWalking = new Image[2];

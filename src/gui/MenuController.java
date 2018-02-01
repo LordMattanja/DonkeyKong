@@ -3,10 +3,8 @@ package gui;
 import java.net.URL;
 import java.util.Random;
 import java.util.ResourceBundle;
-
+import general.XMLFileManager;
 import javafx.animation.Interpolator;
-import javafx.animation.PathTransition;
-import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -36,11 +34,10 @@ public class MenuController implements Initializable{
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
+		//Erstellt ein neues Fass und lässt es im Menü herunterfallen, um es etwas lebendiger wirken zu lassen
 		backgroundBarrel = new Barrel(100, -50, false, 50, 0);
 		Random rand= new Random();
-		TranslateTransition transition = new TranslateTransition();
-		
+		TranslateTransition transition = new TranslateTransition();		
 		transition.setCycleCount(1);
 		transition.setDuration(Duration.seconds(4));
 		transition.setInterpolator(Interpolator.EASE_OUT);
@@ -60,20 +57,31 @@ public class MenuController implements Initializable{
 		
 	}
 	
+	/*
+	 * Startet ein neues Spiel
+	 */
 	@FXML
 	private void startGame() {
 		MainApplication.getMain().getGamestate().setPlayerName(playerNameField.getText());
 		MainApplication.getMain().startGame(false);
 	}
 	
+	/*
+	 * aktualisiert die Bestenliste und wechselt die Scene
+	 */
 	@FXML
 	private void showScoreBoard() {
 		MainApplication.getMain().getContrScore().updateScoreInfo();
 		MainApplication.getMain().setScoreScene();
 	}
 	
+	/*
+	 * Speichert das XML-File und beendet das Programm
+	 */
 	@FXML
 	private void quitGame() {
+		XMLFileManager.writeFile();
+		XMLFileManager.updateDocument();
 		Platform.exit();
 	}
 

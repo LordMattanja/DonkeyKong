@@ -5,8 +5,11 @@ import javafx.scene.shape.Shape;
 
 public abstract class GameObject {
 	
+	//Attribute mit denen die Position und Größe des Objekts bestimmt werden kann
 	protected double hPos, vPos, height, width;
+	//Shape, der die Form des Objekt repräsentiert
 	protected Shape shape;
+	//Bild mit dem das Objekt angezeigt wird
 	protected Image img;
 
 	public double getHeight() {

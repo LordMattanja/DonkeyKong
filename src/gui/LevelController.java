@@ -4,10 +4,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import game.GameState;
+import general.Settings;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -29,7 +28,6 @@ public class LevelController implements Initializable{
 	@FXML
 	private AnchorPane gamePane;
 	private Scene scene;
-	private IntegerProperty playerHealthProperty = new SimpleIntegerProperty();
 	@FXML 
 	private Label playerHealthLabel;
 	@FXML
@@ -55,9 +53,8 @@ public class LevelController implements Initializable{
 		levelLabel.setText("Level: " + main.getGamestate().getLevel());
 		scoreLabel.setText("Score: " + main.getGamestate().getScore());
 		
-		playerHealthProperty.bind(gameState.getHealthProperty());
-		playerHealthLabel.textProperty().bind(playerHealthProperty.asString());
 		
+
 		ArrayList<GameObject> staticObjects = gameState.getGameObjects();
 		
 		for (int i = 0; i < staticObjects.size(); i++){
@@ -84,7 +81,7 @@ public class LevelController implements Initializable{
 				}
 				if(event.getCode() == KeyCode.CONTROL && gameState.isGameActive() && gameState.isControlsEnabled()) {
 					if(player.isGrounded() || player.isClimbing()){
-					  player.setVSpeed(-8.8);
+					  player.setVSpeed(Settings.playerJumpSpeed);
 					  player.stopClimbing();
 					}
 				}	
@@ -122,6 +119,10 @@ public class LevelController implements Initializable{
 				}
 			});
 		}
+	}
+	
+	public void updateHealth(){
+		playerHealthLabel.setText(player.getHealth() + "");
 	}
 	
 	public void removeObject(GameObject obj) {

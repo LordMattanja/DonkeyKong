@@ -10,7 +10,5 @@ public class Ladder extends GameObject {
 		super(hPos, vPos, 25, (vPos > 500)? height + 10 : height, new Rectangle(hPos, vPos, 25, (vPos > 500)? height + 10 : height), ImageLoader.getLadderImage());
 		getShape().setFill(new ImagePattern(getImage()));
 	}	
-	
-	
-	
+		
 }

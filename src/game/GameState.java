@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Random;
 import general.Game;
 import general.Settings;
-import general.XMLFileWriter;
+import general.XMLFileManager;
 import gui.MainApplication;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 import objects.Barrel;
@@ -19,21 +17,20 @@ import objects.Player;
 
 public class GameState {
 	
+	//Instanz des Spielers für direkten Zugriff in verschiedenen Methoden
 	private Player player;
+	//Name den der Spieler am Anfang angibt und der am Ende in die Bestenliste eingetragen wird
 	private String playerName;
+	//Attribute für Punktzahl und Level
 	private int score, level;
+	//Listen aller Spielobjekte
 	private ArrayList<GameObject> gameObjects;
 	private ArrayList<Platform> platforms;
 	private ArrayList<Barrel> barrels;
 	private ArrayList<Ladder> ladders;
 	private MainApplication main;
+	//boolean-Attribute ob das Spiel läuft und die Steuerung aktiviert ist
 	private boolean gameActive = false, controlsEnabled = false;
-	private IntegerProperty healthProperty;
-
-	public IntegerProperty getHealthProperty() {
-		return healthProperty;
-	}
-	
 	
 	public void setPlayerName(String name) {
 		playerName = name;
@@ -59,7 +56,6 @@ public class GameState {
 		return controlsEnabled;
 	}
 
-
 	public void setControlsEnabled(boolean controlsEnabled) {
 		this.controlsEnabled = controlsEnabled;
 	}
@@ -84,7 +80,8 @@ public class GameState {
 	public ArrayList<GameObject> getGameObjects() {
 		return gameObjects;
 	}	
-	
+
+	//Konstruktor der Listen und Attribute initialisiert
 	public GameState() {
 		main = MainApplication.getMain();
 		score = 0;
@@ -93,16 +90,17 @@ public class GameState {
 		platforms = new ArrayList<Platform>();
 		ladders = new ArrayList<Ladder>();
 		barrels = new ArrayList<Barrel>();
-		this.healthProperty = new SimpleIntegerProperty(Settings.playerHealth);
 	}
-	
+
+	//Methode die ein neues Level initialisiert
 	public void initLevel() {
 		Random rand = new Random();
 		Platform platform;
 		level++;
 		gameObjects.add(new Goal());
 		for(int i = 0; i < Settings.numberOfPlatforms; i++){
-			int tilt = (i%2 == 0)? -10 : 10, numOfLadders = (i!=Settings.numberOfPlatforms-1)? rand.nextInt(3)+1 : 1;
+			int tilt = (i%2 == 0)? -10 : 10; 
+			int numOfLadders = (i!=Settings.numberOfPlatforms-1)? rand.nextInt(3)+1 : 1;
 			platform = new Platform(25.0*(i%2), 500/Settings.numberOfPlatforms*i+100.0, Settings.tiltedPlatformLength, tilt, numOfLadders);
 			platforms.add(platform);
 			gameObjects.add(platforms.get(i));
@@ -112,24 +110,14 @@ public class GameState {
 		platforms.add(platform);	
 		gameObjects.add(platform);	
 		addLadder(platform.getLadders());
-		player = new Player(Settings.playerStartingPosX, Settings.playerStartingPosY, this);
+		player = (player!=null)? player : new Player(Settings.playerStartingPosX, Settings.playerStartingPosY, this);
 		gameObjects.add(player);
 	}
-
-	public  boolean checkForObjectCollision(GameObject obj){
-		if(obj == player && player.isClimbing()) return false;
-		for(Platform platform : platforms){
-			if(platform.getShape().getBoundsInParent().intersects(player.getShape().getBoundsInParent())) {
-				Shape intersecting = Shape.intersect((Shape)obj.getShape(), (Shape)platform.getShape());
-				if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 	
-	public  boolean hasReachedGoal() {
+	/*
+	 * Die Methode überprüft, ob der Spieler das Ziel erreicht hat
+	 */
+	public synchronized boolean hasReachedGoal() {
 		double x = player.gethPos(), y = player.getvPos();
 		for(GameObject object : gameObjects) {
 			if(object.getClass().equals(Goal.class)) {
@@ -150,39 +138,10 @@ public class GameState {
 		return false;
 	}
 	
-	public  boolean checkForPolygonCollision(Polygon poly){
-		if(poly.getPoints().isEmpty()) return false;
-		for(Platform platform : platforms){
-			if(platform.getShape().getBoundsInParent().intersects(player.getShape().getBoundsInParent())) {
-				Shape intersecting = Shape.intersect((Shape)poly, (Shape)platform.getShape());
-				if(intersecting.getBoundsInParent().getHeight() > 0 && intersecting.getBoundsInParent().getWidth() >0){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public  Platform getCollidingPlatform(){
-		double x = player.gethPos(), y = player.getvPos();
-		for(Platform platform : platforms){
-				if(platform.getShape().getBoundsInLocal().getMinY() - y > 30) continue;
-				for(int i = 0; i < 2; i++) {
-					x = player.gethPos();
-					for(int j = 0; j < 2; j++) {
-						if(platform.getShape().contains(x, y)){
-						  return platform;
-						}
-						x = player.gethPos() + 20;
-					}
-					y = player.getvPos() - 30;
-				}
-				y = player.getvPos();
-			}
-		return null;
-	}
-	
-	public  Platform getCurrentlyUsedPlatform(GameObject obj) {
+	/*
+	 * Die Methode überprüft für jede Plattform ob das GameObject mit ihr kollididert und gibt falls ja die Plattform zurück
+	 */
+	public synchronized Platform getCurrentlyUsedPlatform(GameObject obj) {
 		for(Platform platform : platforms) {
 			if(platform.getShape().getBoundsInParent().intersects(obj.getShape().getBoundsInParent())) {
 				return platform;
@@ -190,8 +149,11 @@ public class GameState {
 		}
 		return null;
 	}
-	
-	public  boolean checkForPlayerBarrelCollision(){
+
+	/*
+	 * Überprüft, ob der Spieler mit einem Fass kollidiert und gibt in dem Fall true zurück.
+	 */
+	public synchronized boolean checkForPlayerBarrelCollision(){
 		for (Barrel barrel : barrels) {
 			if(barrel.getShape().getBoundsInParent().getMinY() - player.getvPos() > 45)continue;
 				Shape intersectingShape = Polygon.intersect((Shape)player.getShape(), (Shape)barrel.getShape());
@@ -202,8 +164,12 @@ public class GameState {
 		}
 		return false;
 	}
-	
-	public  boolean canClimb() {
+
+	/*
+	 * Die Methode überprüft, ob der Spieler nah genug vor einer Leiter steht (also sich die Shapes weit genug überschneiden, 
+	 * dass er klettern kann und gibt in dem Fall true zurück
+	 */
+	public synchronized boolean canClimb() {
 		for (Ladder ladder : ladders) {
 			if (ladder.getShape().getBoundsInParent().getMinY() - player.getvPos() > 120)
 				continue;
@@ -224,7 +190,10 @@ public class GameState {
 		return false;
 	}
 
-	public  Ladder getUsedLadder(GameObject object) {
+	/*
+	 * Gibt die Leiter zurück, die der Spieler gerade nutzt, indem sie für jede Leiter die "Kollision" überprüft.
+	 */
+	public synchronized Ladder getUsedLadder(GameObject object) {
 		for (Ladder ladder : ladders) {
 			if (object.equals(player) && ladder.getShape().getBoundsInParent().getMinY() - object.getvPos() > 120)
 				continue;
@@ -236,8 +205,11 @@ public class GameState {
 		}
 		return null;
 	}
-	
-	public  boolean playerPlatformCollision() {
+
+	/*
+	 * Überprüft ob der Spieler mit einer Plattform kollidiert und gibt das zurück.
+	 */
+	public synchronized boolean playerPlatformCollision() {
 		if(canClimb() && player.isClimbing()) return false;
 		double x = player.gethPos(), y = player.getvPos();
 		for(Platform platform : platforms) {
@@ -257,6 +229,9 @@ public class GameState {
 		return false;
 	}
 	
+	/*
+	 * Bekommt ein Array an Leitern übergeben und fügt diese dann zu allen nötigen Listen hinzu.
+	 */
 	public void addLadder(Ladder[] ladders) {
 		for(Ladder ladder : ladders) {
 			if(!this.ladders.contains(ladder)) {
@@ -268,7 +243,10 @@ public class GameState {
 		}
 	}
 	
-	protected void addBarrel(){
+	/*
+	 * Fügt ein Fass zu den benötigten Listen hinzu.
+	 */
+	protected synchronized void addBarrel(){
 		Random rand = new Random();
 		Barrel barrel = new Barrel(Settings.barrelStartingPosX, Settings.barrelStartingPosY, true, Settings.barrelSize, rand.nextInt(3));
 		barrels.add(barrel);
@@ -276,30 +254,43 @@ public class GameState {
 		main.getContrLevel().paintObject(barrel);
 	}
 	
-	public void removeBarrel(Barrel barrel) {
+	/*
+	 * Entfernt ein Fass von allen Listen
+	 */
+	public synchronized void removeBarrel(Barrel barrel) {
 		main.getContrLevel().removeObject(barrel);
 		barrels.remove(barrel);
 		gameObjects.remove(barrel);
 	}
 	
+	/*
+	 * Berechnet die Punktzahl für das abgeschlossene Level und fügt diese dem Attribut hinzu
+	 */
 	public void addToScore(int timeBonus) {
 		score += 1000;
 		score += level*100;
 		score += timeBonus;
-		score += healthProperty.intValue()*200;
+		score += player.getHealth()*200;
 	}
 	
-
+	/*
+	 * Aktualisiert die Lebenspunkte des Spielers
+	 */
 	public void updatePlayerHealth() {
 		javafx.application.Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				healthProperty.setValue(healthProperty.intValue()-1);
+				player.setHealth(player.getHealth()-1);
+				main.getContrLevel().updateHealth();
 			}			
 		});		
 	}
 	
+	/*
+	 * Beendet das Spiel und setzt den GameState zurück
+	 */
 	public void endGame(boolean gameover){
+		main.getGameThread().pauseThread();
 		gameActive = false;
 		controlsEnabled = false;
 		for(GameObject object : gameObjects) {
@@ -310,11 +301,11 @@ public class GameState {
 		barrels.clear();
 		platforms.clear();
 		ladders.clear();
-		player = null;
 		if(!gameover){
 			main.startGame(true);
 		} else {
-			XMLFileWriter.addNewGame(new Game(playerName, score, level));
+			XMLFileManager.addNewGame(new Game(playerName, score, level));
+			player = null;
 			level = 0;
 			score = 0;
 		}

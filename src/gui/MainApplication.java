@@ -4,7 +4,7 @@ import java.io.IOException;
 import game.GameState;
 import game.GameThread;
 import general.Settings;
-import general.XMLFileWriter;
+import general.XMLFileManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -16,8 +16,11 @@ public class MainApplication extends Application{
 	
 	private Stage window;
 	private Scene levelScene, menuScene, scoreScene;
+	//FXMLLoader zum Laden der drei Scenes
 	private FXMLLoader levelLoader, menuLoader, scoreLoader;
+	//rootPanes für die Scenes
 	private Pane rootLevel, rootMenu, rootScore;
+	//Die einzelnen Controller für die Scenes
 	private LevelController contrLevel;
 	private ScoreBoardController contrScore;
 	private MenuController contrMenu;
@@ -74,7 +77,9 @@ public class MainApplication extends Application{
 		window.setScene(scoreScene);
 	}
 	
-	
+	/*
+	 * Initialisiert die Scenes inklusive der dafür nötigen FXMLLoader, Panes und Controller
+	 */
 	private void initialize() {
 		levelLoader = new FXMLLoader(getClass().getResource("Level.fxml"));
 		menuLoader = new FXMLLoader(getClass().getResource("Menu.fxml"));
@@ -89,8 +94,8 @@ public class MainApplication extends Application{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		window.setHeight(Settings.playerStartingPosY+100);
-		window.setWidth(635);
+		window.setHeight(Settings.sceneHeight);
+		window.setWidth(Settings.sceneWidth);
 		levelScene = new Scene(rootLevel, Settings.sceneWidth, Settings.sceneHeight);
 		menuScene = new Scene(rootMenu, Settings.sceneWidth, Settings.sceneHeight);
 		scoreScene = new Scene(rootScore, Settings.sceneWidth, Settings.sceneHeight);
@@ -98,6 +103,29 @@ public class MainApplication extends Application{
 		contrScore = scoreLoader.getController();
 		contrMenu = menuLoader.getController();
 		window.setScene(menuScene);
+	}
+	
+	/*
+	 * Sorgt dafür dass ein Level initialisiert wird und alle anderen Voraussetzungen zum Spielstart erfüllt sind
+	 */
+	public synchronized void startGame(boolean nextLevel) {
+		gameState.initLevel();
+		if(!nextLevel){
+			window.setScene(levelScene);
+			gameThread = new GameThread();
+		}
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				contrLevel.initGame();
+				gameState.setGameActive(true);
+				if (!nextLevel) {
+					gameThread.start();
+				} else {
+					gameThread.resumeThread();
+				}
+			}
+		});		
 	}
 
 	@Override
@@ -112,30 +140,9 @@ public class MainApplication extends Application{
 		
 		window.show();
 		window.setOnCloseRequest(e -> {
-			XMLFileWriter.writeFile();
-			XMLFileWriter.updateDocument();
-		});		
-	}
-	
-	public synchronized void startGame(boolean nextLevel) {
-		gameState.initLevel();
-		if(!nextLevel){
-			window.setScene(levelScene);
-			gameThread = new GameThread();
-		}
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				contrLevel.initGame();
-				gameState.setGameActive(true);
-				if (!nextLevel) {
-					gameThread.start();
-					gameState.getHealthProperty().setValue(3);
-				} else {
-					gameThread.updatePlayer();
-					gameThread.resumeThread();
-				}
-			}
+			if(gameThread != null) gameThread.pauseThread();
+			XMLFileManager.writeFile();
+			XMLFileManager.updateDocument();
 		});		
 	}
 

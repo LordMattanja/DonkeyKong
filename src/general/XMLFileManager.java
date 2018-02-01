@@ -11,7 +11,7 @@ import org.jdom2.*;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;;
 
-public class XMLFileWriter {
+public class XMLFileManager {
 	
 	private static Document document;
 	private static Element root;
@@ -38,7 +38,7 @@ public class XMLFileWriter {
 		writeFile();
 	}
 	
-	public static ArrayList<Game> readFile() {
+	public static ArrayList<Game> readDocument() {
 		updateDocument();
 		ArrayList<Game> gamesList = new ArrayList<Game>();
 		if(document == null) {
@@ -88,7 +88,7 @@ public class XMLFileWriter {
 	}
 	
 	public static void sortGames() {
-		ArrayList<Game> gamesList = readFile();
+		ArrayList<Game> gamesList = readDocument();
 		Game game;
 		for(int i = 0; i < gamesList.size(); i++) {
 			for(int j = gamesList.size()-1; j > i ; j--) {

@@ -11,7 +11,9 @@ import javafx.scene.shape.Shape;
 
 public class Platform extends GameObject{
 	
+	// tilt gibt an, um wie viel die Plattform gekippt ist: entweder 10, 0 oder -10
 	private int tilt;
+	//repräsentiert die Form
 	private Polygon polygon;
 	private Ladder[] ladders;
 
@@ -28,6 +30,9 @@ public class Platform extends GameObject{
 		return ladders;
 	}
 	
+	/*
+	 * Der Konstruktor initialisiert die Plattform, kreirt numOfLadders neue Leitern und speichert diese in ladders[] ab
+	 */
 	public Platform(double hPos, double vPos, int length, int tilt, int numOfLadders) {
 		super(hPos, vPos, length, 23, new Polygon(), ImageLoader.getPlatformImage());
 		this.tilt = tilt;		
@@ -45,6 +50,9 @@ public class Platform extends GameObject{
 		}
 	}
 	
+	/*
+	 * berechnet die horizontale Position der nächsten Leiter
+	 */
 	private int calcLadderHPos (int tilt, int numOfLadders, int ladderID) {
 		Random rand = new Random();
 		int hPosLadder = 0;
@@ -65,6 +73,9 @@ public class Platform extends GameObject{
 		return hPosLadder/25*25;
 	}
 	
+	/*
+	 * berechnet die vertikale Position der Leiter basierend auf der horizontalen
+	 */
 	private double calcLadderVPos(double hPosLadder) {
 		double vPosLadder = hPosLadder-gethPos()-Settings.tiltedPlatformLength/2;
 		vPosLadder = vPosLadder/(Settings.tiltedPlatformLength/2)*tilt;

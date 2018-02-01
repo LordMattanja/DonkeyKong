@@ -3,15 +3,19 @@ package objects;
 import game.GameState;
 import general.ImageLoader;
 import general.Settings;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.scene.paint.Color;
+import gui.MainApplication;
+import javafx.animation.ScaleTransition;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 public class Player extends GameObject {
 
+	//Attribute für die Geschwindigkeit mit der sich der Spieler gerade bewegt
 	private double vSpeed = 0.0, hSpeed = 0.0;
+	//Lebenspunkte des Spielers
+	private int health = 3;
+	//Booleans für die Steuerung und Bewegung
 	private boolean isPressedKeyRight = false, isPressedKeyLeft = false, isPressedKeyUp = false, isPressedKeyDown = false, grounded = true, isClimbing = false, canClimb = false;
 	private GameState gameState;
 	
@@ -94,52 +98,26 @@ public class Player extends GameObject {
 		return vSpeed;
 	}
 	
+	public int getHealth() {
+		return health;
+	}
+
+	public void setHealth(int health) {
+		this.health = health;
+	}
+
+	/*
+	 * Initialisiert den Spieler mit Position, Shape und übergibt den GameState, damit der Spieler leichteren Zugriff auf Methoden hat 
+	 */
 	public Player(double hPosition, double vPosition, GameState gs) {
 		super(hPosition, vPosition, 25, 40, new Rectangle(hPosition, vPosition-30, 25, 30), ImageLoader.getPlayerImage());
 		gameState = gs;
 		shape.setFill(new ImagePattern(img));
-		System.out.println("New PLayer: , hPos : "+ hPos + " vPos: "+ vPos);
 	}
-
-//	private void resolveCollision(boolean vertical){
-//		if(vertical) {
-//			if(grounded) {
-//				vPos -= vSpeed+.1;
-//			} else {
-//			if(vSpeed > 0 && vPos < 630){
-//				vPos -= .1;
-//		    	grounded = true;
-//		    	vSpeed = 0.0;
-//			} else if(vSpeed < 0 && vPos > 0){
-//				vPos += .1;
-//		    	vSpeed -= Settings.gravity;
-//			}
-//			}
-//	    	polygon.setTranslateY(vPos-Settings.playerStartingPosY);
-//		} else {
-//			if(isPressedKeyLeft && !isPressedKeyRight && hPos >= 5.0){
-//				hPos += .1;
-//				if(gamestate.getCollidingPlatform(this.polygon).getTilt() < 0) {
-//					vPos -= .05;
-//					polygon.setTranslateY(vPos-Settings.playerStartingPosY);
-//				}
-//			} else if(!isPressedKeyLeft && isPressedKeyRight && hPos <= 700){
-//		    	hPos -= .1;
-//		    	if(gamestate.getCollidingPlatform(this.polygon).getTilt() > 0) {
-//					vPos -= .05;
-//					polygon.setTranslateY(vPos-Settings.playerStartingPosY);
-//				}
-//		    }
-//			polygon.setTranslateX(hPos-Settings.playerStartingPosX);
-//			if(gamestate.canClimb()){
-//				return;
-//			}
-//		}
-//		if(gamestate.checkObjectCollision(this)){
-//			resolveCollision(vertical);
-//		} 
-//	}
 	
+	/*
+	 * Lässt den Spieler in die gewünschte Richtung klettern (durch verändern der Position und verschieben des Shapes) und hält ihn an der Leiter
+	 */
 	public void climb(){
 		canClimb = gameState.canClimb();
 		if(canClimb && isPressedKeyUp && !isPressedKeyDown){
@@ -163,6 +141,9 @@ public class Player extends GameObject {
 		 });
 	}
 	
+	/*
+	 * Verschiebt den Spieler genau an die Leiter
+	 */
 	private void gripToLadder() {
 		Ladder ladder = gameState.getUsedLadder(this);
 		if(ladder != null) {
@@ -171,65 +152,37 @@ public class Player extends GameObject {
 		movePlayerPolygon();
 	}
 	
-//	public void applyGravity(){
-//		if(vSpeed == 0 && !canClimb){
-//			polygon.setTranslateY(-Settings.gravity + vPos - Settings.playerStartingPosY);
-//			if(!gamestate.checkObjectCollision(this)){
-//				vSpeed += -Settings.gravity;
-//			}
-//			polygon.setTranslateY(Settings.gravity + vPos - Settings.playerStartingPosY);
-//		}
-//	}
-//	
-//	public  void move() {
-//	    if(isPressedKeyLeft && !isPressedKeyRight && hPos >= 5.0){
-//	    	hPos -= 5.0;
-//	    } else if(!isPressedKeyLeft && isPressedKeyRight && hPos <= 700){
-//	    	hPos += 5.0;
-//	    }
-//	    if(vSpeed != 0.0 && vPos+vSpeed < 630) {
-//	    	if(grounded){
-//	    		grounded = false;
-//	    	}
-//	    	vPos += vSpeed;
-//	    	polygon.setTranslateY(vPos-Settings.playerStartingPosY);
-//	    	if(gamestate.checkObjectCollision(this)){
-//			  resolveCollision(true);
-//			} else {
-//	    	  vSpeed -= Settings.gravity;
-//			}
-//	    }
-//		polygon.setTranslateX(hPos-Settings.playerStartingPosX);
-//		if(gamestate.checkObjectCollision(this)){
-//			resolveCollision(false);
-//		}
-////		System.out.println("x: " + hPos + ", y: " + vPos); 
-//	}
-	
+	/*
+	 * Die Methode bewegt den Spieler:
+	 * Sowohl laufen/horizontale Bewegungen als auch fallen werden hier koordiniert
+	 */
 	public void move() {
 		grounded = checkIfGrounded();
-		//if the player is not grounded -> fall
+		//wenn nicht grounded -> fall()
 		 if(!grounded || vSpeed != 0) {
 			 fall();
 		 } 
 		 
 		 grounded = checkIfGrounded();
-		 //If the player presses the left key and is not on the left border
+		 //wenn der Spieler nach rechts drückt
 		 if(!isClimbing && isPressedKeyLeft && !isPressedKeyRight){
-			  //the moveDistance is set to -5
+		      //wird die horizontale Geschwindigkeit auf -5 am Boden und -2 in der Luft gesetzt
 		    	hSpeed = (grounded || hSpeed == -5.0)? -5.0 : -2.0;
-		    } else if(!isClimbing && !isPressedKeyLeft && isPressedKeyRight){ //If the player presses the right key and is not on the right border
-		      //the moveDistance is set to 5
+		    } else if(!isClimbing && !isPressedKeyLeft && isPressedKeyRight){ //wenn der Spieler nach rechts drückt
+		      //wird die horizontale Geschwindigkeit auf 5 am Boden und 2 in der Luft gesetzt
 		    	hSpeed = (grounded || hSpeed == 5.0)? 5.0 : 2.0;;
 		    }
-		 //moveDistance is added to the hPos of the player
+		 //hSpeed wird zur Position hinzugefügt
 		 if(!(hPos <= 0.0 && hSpeed < 0 || hPos > Settings.tiltedPlatformLength && hSpeed > 0)) hPos += hSpeed;
-		 //checks for a collision with a platform after moving right/left
+		 //überprüft und verarbeitet potentielle Kollision
 		 checkAndResolveCollision(hSpeed, true);
-		 
+		 //verschiebt den Shape
 		 movePlayerPolygon();		 
 	}
 	
+	/*
+	 * Verschiebt den Shape an die aktuelle Position
+	 */
 	private synchronized void movePlayerPolygon() {
 		if(!gameState.playerPlatformCollision()) {
 			 javafx.application.Platform.runLater(new Runnable() {
@@ -241,11 +194,12 @@ public class Player extends GameObject {
 				}
 				 
 			 });
-		 } else {
-			 System.err.println("ERROR: Cannot move player due to collision");
-		 }
+		 } 
 	}
 	
+	/*
+	 * Lässt den Spieler fallen, passt die Fallgeschwindigkeit an und prüft Kollisionen
+	 */
 	private void fall() {
 		vSpeed += (vSpeed < 15)? 1.0 : 0;
 		vPos += vSpeed;
@@ -259,12 +213,18 @@ public class Player extends GameObject {
 		}
 	}
 	
+	/*
+	 * Verschiebt den Spieler bei einer Kollision mit einer Plattform gerade soweit nach oben, dass er auf der Plattform steht
+	 */
 	private void gripToPlatform() {
 		while(gameState.playerPlatformCollision()) {
 			vPos -= 0.1;
 		}
 	}
 	
+	/*
+	 * Überprüft ob sich der Spieler gerade auf einer Plattform befindet
+	 */
 	private boolean checkIfGrounded() {
 		vPos += .5;
 		boolean grounded = gameState.playerPlatformCollision();
@@ -272,6 +232,9 @@ public class Player extends GameObject {
 		return grounded;
 	}
 	
+	/*
+	 * Lässt den Spieler die Leiter loslassen
+	 */
 	public void stopClimbing() {
 		isClimbing = false;
 		if(gameState.playerPlatformCollision()) {
@@ -279,9 +242,31 @@ public class Player extends GameObject {
 		}
 	}
 	
+	/*
+	 * Schrumpft den Spieler, dass es so aussieht als ob er im Ziel verschwindet, setzt das danach zurück und beendet das Level im GameThread
+	 */
+	public void disappear() {
+		ScaleTransition disappear = new ScaleTransition(Duration.seconds(1.5), shape);
+		disappear.setToX(0.01);
+		disappear.setToY(0.01);
+		disappear.setOnFinished(e -> {
+			MainApplication.getMain().getGameThread().endLevel();
+			shape.setScaleX(1);
+			shape.setScaleY(1);
+			hPos = Settings.playerStartingPosX;
+			vPos = Settings.playerStartingPosY;
+			movePlayerPolygon();
+		});	
+		disappear.play();
+		MainApplication.getMain().getGameThread().pauseThread();
+	}
+	
+	/*
+	 * Bekommt als Parameter die Distanz und die Information ob es eine horizontale oder vertikale Kollision war und löst die Kollision dementsprechend
+	 */
 	private void checkAndResolveCollision(double moveDistance, boolean horizontal) {
 		if(gameState.playerPlatformCollision() && !isClimbing) {
-			Platform platform = gameState.getCollidingPlatform();
+			Platform platform = gameState.getCurrentlyUsedPlatform(this);
 			if(horizontal) {
 				hPos -= moveDistance;
 				if(platform != null && platform.getTilt() != 0 && vPos-Settings.playerHeight < platform.getShape().getBoundsInParent().getMinY()) {
@@ -294,7 +279,7 @@ public class Player extends GameObject {
 			}
 		} else if(isClimbing) {
 			if (!horizontal) {
-				Platform platform = gameState.getCollidingPlatform();
+				Platform platform = gameState.getCurrentlyUsedPlatform(this);
 				Ladder ladder = gameState.getUsedLadder(this);
 				for (Ladder platformLadder : platform.getLadders()) {
 					if (ladder == platformLadder) {
@@ -310,7 +295,10 @@ public class Player extends GameObject {
 			}
 		}
 	}	
-
+	
+	/*
+	 * Die Methode wechselt zwischen den beiden laufenden Bildern des Spielers, sodass im Ansatz eine Laufanimation entsteht
+	 */
 	public void switchPlayerImg(boolean walking) {
 		if(!walking) {
 			 img = ImageLoader.getPlayerImage();
